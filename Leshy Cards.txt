@@ -1,0 +1,23 @@
+Name: Adder
+Portrait: Adder
+Power: 1
+Health: 1
+Cost: 2 blood
+Sigil: Touch of Death
+Tribe: Reptilian
+
+Name: Alpha
+Portrait: Alpha
+Power: 1
+Health: 2
+Cost: 5 bones
+Sigil: Leader
+Tribe: Canine
+
+Name: Ant Queen
+Portrait: AntQueen
+Power: Ants
+Health: 3
+Cost: 2 blood
+Sigil: Ant Spawner
+Tribe: Insectoid
