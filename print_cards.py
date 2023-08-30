@@ -2,11 +2,15 @@ import os
 import requests
 
 TRIBES_MAPPING = {
-    "Feathered": "bird",
-    "Canine": "canine",
-    "Hooved": "hooved",
-    "Reptilian": "reptile",
-    "Insectoid": "insect"
+    'Feathered': 'bird',
+    'Avian': 'bird',
+    'Wolf': 'canine',
+    'Canine': 'canine',
+    'Hooved': 'hooved',
+    'Reptilian': 'reptile',
+    'Reptile': 'reptile',
+    'Insect': 'insect',
+    'Insectoid': 'insect'
 }
 SIGILS_MAPPING = {
     'Made of Stone': 'madeofstone',
@@ -26,6 +30,13 @@ SIGILS_MAPPING = {
     'Unkillable': 'drawcopyondeath',
     'Sharp Quills': 'sharp',
     'Hefty': 'strafepush',
+    'Rampager': 'strafeswap',
+    'Brood Parasite': 'createegg',
+    'Armored': 'deathshield',
+    'Double Strike': 'doublestrike',
+    'Morsel': 'morsel',
+    'Blood Lust': 'gainattackonkill',
+    'Scavenger': 'opponentbones',
     'Ant Spawner': 'drawant',
     'Guardian': 'guarddog',
     'Airborne': 'flying',
@@ -116,29 +127,44 @@ def process_card_info(card_info, json_payload):
             key, value = attribute.split(': ', 1)
             key = key.lower()
             if key == 'tribes' or key == 'tribe':
-                tribes = [tribe.strip() for tribe in value.split(',')]
-                tribes = [TRIBES_MAPPING[tribe] for tribe in tribes]
-                json_payload['tribes'] = tribes
+                if value == 'None':
+                    pass
+                else:
+                    tribes = [tribe.strip() for tribe in value.split(',')]
+                    tribes = [TRIBES_MAPPING[tribe] for tribe in tribes]
+                    json_payload['tribes'] = tribes
             elif 'orange' in value or 'green' in value or 'blue' in value:
                 for gem in value.split(', '):
                     json_payload['gemCost'][gem] = True
-            elif key == 'cost' and value.split()[1] == 'blood':
-                json_payload['bloodCost'] = int(value.split()[0])
-            elif key == 'cost' and (value.split()[1] == 'bone' or value.split()[1] == 'bones'):
-                json_payload['boneCost'] = int(value.split()[0])
-            elif key == 'cost' and value.split()[1] == 'energy':
-                json_payload['energyCost'] = int(value.split()[0])
+            elif key == 'cost':
+                if value == 'None':
+                    pass
+                elif value.split()[1] == 'blood':
+                    json_payload['bloodCost'] = int(value.split()[0])
+                elif value.split()[1] == 'bone' or value.split()[1] == 'bones':
+                    json_payload['boneCost'] = int(value.split()[0])
+                elif value.split()[1] == 'energy':
+                    json_payload['energyCost'] = int(value.split()[0])
             elif key == 'sigils' or key == 'sigil':
-                sigils = [sigil.strip() for sigil in value.split(',')]
-                sigils = [SIGILS_MAPPING[sigil] for sigil in sigils]
-                json_payload['sigils'] = sigils
+                if value == 'None':
+                    pass
+                else:
+                    sigils = [sigil.strip() for sigil in value.split(',')]
+                    sigils = [SIGILS_MAPPING[sigil] for sigil in sigils]
+                    json_payload['sigils'] = sigils
             elif key == 'temple':
                 json_payload['temple'] = value.lower()
             elif key == 'portrait':
-                json_payload['portrait'] = {"type":"creature","creature":value}
+                if value == 'None':
+                    json_payload['portrait'] = {'type': 'creature', 'creature': json_payload['name'].strip(' ')}
+                else:
+                    json_payload['portrait'] = {'type':'creature','creature':value}
             elif key == 'name':
                 json_payload['name'] = value
             elif key == 'power':
+                if value.lower() == 'spilled blood':
+                    # Temporary until spilled blood stat icon is added
+                    pass
                 if value.lower() in ('bell', 'cardsinhand', 'mirror', 'bones', 'ants'):
                     json_payload['power'] = 0
                     json_payload['staticon'] = value.lower()
@@ -159,52 +185,52 @@ def make_request(card_data):
     # Process data and fetch images
     for card_info in card_data:
         # Construct the URL with the parameters
-        endpoint_url = f"http://localhost:8080/api/card/leshy/front?locale=default"
+        endpoint_url = f'http://localhost:8080/api/card/leshy/front?locale=default'
 
         # Convert attributes to query parameters
         json_payload = {
-            "name": "",
-            "power": 0,
-            "staticon": None,
-            "health": 1,
-            "tribes": [],
-            "bloodCost": 0,
-            "boneCost": 0,
-            "energyCost": 0,
-            "gemCost":{"orange1":False,"green1":False,"blue1":False,
-                       "orange2":False,"green2":False,"blue2":False,
-                       "orange3":False,"green3":False,"blue3":False},
-            "decals": [],
-            "sigils": [],
-            "temple": "nature",
-            "terrain": False,
-            "terrainLayout": False,
-            "rare": False,
-            "golden": False,
-            "squid": False,
-            "fused": False,
-            "smoke": False
+            'name': '',
+            'power': 0,
+            'staticon': None,
+            'health': 1,
+            'tribes': [],
+            'bloodCost': 0,
+            'boneCost': 0,
+            'energyCost': 0,
+            'gemCost':{'orange1':False,'green1':False,'blue1':False,
+                       'orange2':False,'green2':False,'blue2':False,
+                       'orange3':False,'green3':False,'blue3':False},
+            'decals': [],
+            'sigils': [],
+            'temple': 'nature',
+            'terrain': False,
+            'terrainLayout': False,
+            'rare': False,
+            'golden': False,
+            'squid': False,
+            'fused': False,
+            'smoke': False
         }
 
         json_payload = process_card_info(card_info, json_payload)
         json_payload = {key: value for key, value in json_payload.items() if value is not None}
         print(json_payload)
 
-        endpoint_url = "http://localhost:8080/api/card/leshy/front?locale=default"
+        endpoint_url = 'http://localhost:8080/api/card/leshy/front?locale=default'''
         response = requests.post(endpoint_url, json = json_payload)
 
         if response.status_code == 201:
             image_data = response.content  # Get the binary image data
             file_name = os.path.join(output_folder, json_payload['name'] + '.png')
-            with open(file_name, "wb") as image_file:
+            with open(file_name, 'wb') as image_file:
                 image_file.write(image_data)
-            print(f"Image downloaded successfully: {file_name}")
+            print(f'Image downloaded successfully: {file_name}')
         else:
-            print(f"Image download failed: {response.text}")
+            print(f'Image download failed: {response.text}')
 
 
 if __name__ == '__main__':
-    output_folder = "Output"
+    output_folder = 'Output'
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
