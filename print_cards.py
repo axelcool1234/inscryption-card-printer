@@ -37,6 +37,7 @@ SIGILS_MAPPING = {
     'Morsel': 'morsel',
     'Blood Lust': 'gainattackonkill',
     'Scavenger': 'opponentbones',
+    'Finical Hatchling': 'hydraegg',
     'Ant Spawner': 'drawant',
     'Guardian': 'guarddog',
     'Airborne': 'flying',
@@ -121,8 +122,7 @@ SIGILS_MAPPING = {
 }
 
 def process_card_info(card_info, json_payload):
-    attributes = card_info.split('\n')
-    for attribute in attributes:
+    for attribute in card_info:
         if attribute:
             key, value = attribute.split(': ', 1)
             key = key.lower()
@@ -139,11 +139,11 @@ def process_card_info(card_info, json_payload):
             elif key == 'cost':
                 if value == 'None':
                     pass
-                elif value.split()[1] == 'blood':
+                elif value.split()[1].lower() == 'blood':
                     json_payload['bloodCost'] = int(value.split()[0])
-                elif value.split()[1] == 'bone' or value.split()[1] == 'bones':
+                elif value.split()[1].lower() == 'bone' or value.split()[1].lower() == 'bones':
                     json_payload['boneCost'] = int(value.split()[0])
-                elif value.split()[1] == 'energy':
+                elif value.split()[1].lower() == 'energy':
                     json_payload['energyCost'] = int(value.split()[0])
             elif key == 'sigils' or key == 'sigil':
                 if value == 'None':
@@ -156,16 +156,17 @@ def process_card_info(card_info, json_payload):
                 json_payload['temple'] = value.lower()
             elif key == 'portrait':
                 if value == 'None':
-                    json_payload['portrait'] = {'type': 'creature', 'creature': json_payload['name'].strip(' ')}
+                    capitalized_name = ' '.join(word.capitalize() for word in json_payload['name'].split())
+                    json_payload['portrait'] = {'type': 'creature', 'creature': capitalized_name.replace(' ', '')}
                 else:
                     json_payload['portrait'] = {'type':'creature','creature':value}
             elif key == 'name':
                 json_payload['name'] = value
             elif key == 'power':
                 if value.lower() == 'spilled blood':
-                    # Temporary until spilled blood stat icon is added
-                    pass
-                if value.lower() in ('bell', 'cardsinhand', 'mirror', 'bones', 'ants'):
+                    json_payload['power'] = 0
+                    json_payload['staticon'] = 'sacrificesthisturn'
+                elif value.lower() in ('bell', 'cardsinhand', 'mirror', 'bones', 'ants'):
                     json_payload['power'] = 0
                     json_payload['staticon'] = value.lower()
                 else:
@@ -178,16 +179,14 @@ def process_card_info(card_info, json_payload):
                 elif value == 'terrain':
                     json_payload['terrain'] = True
                     json_payload['terrainLayout'] = True
+            elif key == 'golden':
+                json_payload['golden'] = True
     return json_payload
 
 
 def make_request(card_data):
-    # Process data and fetch images
     for card_info in card_data:
-        # Construct the URL with the parameters
         endpoint_url = f'http://localhost:8080/api/card/leshy/front?locale=default'
-
-        # Convert attributes to query parameters
         json_payload = {
             'name': '',
             'power': 0,
@@ -227,6 +226,26 @@ def make_request(card_data):
             print(f'Image downloaded successfully: {file_name}')
         else:
             print(f'Image download failed: {response.text}')
+            break
+
+
+def read_entries(file_path):
+    entries = []
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+    entry = []
+    for line in lines:
+        if line.strip().startswith('#'):
+            continue
+        if not line.strip():
+            if entry:
+                entries.append(entry)
+                entry = []
+        else:
+            entry.append(line.strip())
+    if entry:
+        entries.append(entry)
+    return entries
 
 
 if __name__ == '__main__':
@@ -234,7 +253,6 @@ if __name__ == '__main__':
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-    with open('Leshy Cards.txt', 'r') as file:
-        card_data = file.read().split('\n\n')
+    card_data = read_entries('Leshy Cards.txt')
     make_request(card_data)
 
