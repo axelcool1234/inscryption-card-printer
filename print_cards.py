@@ -160,10 +160,12 @@ def process_card_info(card_info, json_payload):
                     json_payload['portrait'] = {'type': 'creature', 'creature': capitalized_name.replace(' ', '')}
                 else:
                     json_payload['portrait'] = {'type':'creature','creature':value}
+            elif key == 'deathcard':
+                data = value.split(', ')
+                json_payload['portrait'] = {'type':'deathcard','data':
+                    {"head":data[0],"eyes":int(data[1]), "mouth":int(data[2]),"lostEye":bool(data[3])}}
             elif key == 'name':
                 json_payload['name'] = value
-                if value == 'Hungry Child':
-                    json_payload['child'] = True
             elif key == 'power':
                 if value.lower() == 'spilled blood':
                     json_payload['power'] = 0
@@ -190,8 +192,16 @@ def process_card_info(card_info, json_payload):
                 json_payload['smoke'] = True
             elif key == 'snelk':
                 json_payload['snelk'] = True
-            elif key == 'Blood2':
+            elif key == 'blood2':
                 json_payload['blood2'] = True
+            elif key == 'squid':
+                json_payload['squid'] = True
+            elif key == 'child':
+                json_payload['child'] = True
+            elif key == 'enhanced':
+                json_payload['enhanced'] = True
+            elif key == 'snelk4':
+                json_payload['snelk4'] = True
     return json_payload
 
 
@@ -213,14 +223,6 @@ def make_request(card_data):
             'decals': [],
             'sigils': [],
             'temple': 'nature',
-            'terrain': False,
-            'terrainLayout': False,
-            'rare': False,
-            'golden': False,
-            'squid': False,
-            'fused': False,
-            'smoke': False,
-            'child': False,
         }
 
         json_payload = process_card_info(card_info, json_payload)
@@ -232,7 +234,15 @@ def make_request(card_data):
 
         if response.status_code == 201:
             image_data = response.content  # Get the binary image data
-            file_name = os.path.join(output_folder, json_payload['name'] + '.png')
+            base_name = json_payload['name']
+            file_name = os.path.join(output_folder, base_name + '.png')
+
+            # Check if the file already exists
+            counter = 1
+            while os.path.exists(file_name):
+                file_name = os.path.join(output_folder, f"{base_name}({counter}).png")
+                counter += 1
+
             with open(file_name, 'wb') as image_file:
                 image_file.write(image_data)
             print(f'Image downloaded successfully: {file_name}')

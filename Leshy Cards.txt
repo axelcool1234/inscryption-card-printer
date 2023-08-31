@@ -43,7 +43,7 @@ Tribe: Insect
 Name: Ant Queen
 Portrait: None
 Power: Ants
-Health: 2
+Health: 3
 Cost: 2 Blood
 Sigil: Ant Spawner
 Tribe: Insect
@@ -183,9 +183,18 @@ Health: 1
 Cost: None
 Sigil: None
 Tribe: Reptile
+Type: Rare
 
 Name: Black Goat
 Portrait: Goat
+Power: 0
+Health: 1
+Cost: 1 Blood
+Sigil: Worthy Sacrifice
+Tribe: Hooved
+
+Name: Black Goat
+Portrait: GoatSexy
 Power: 0
 Health: 1
 Cost: 1 Blood
@@ -206,6 +215,15 @@ Power: 0
 Health: 1
 Cost: 1 Blood
 Sigil: Many Lives
+Tribe: Hooved
+Type: Rare
+
+Name: Child 13
+Portrait: JerseyDevilFlying
+Power: 2
+Health: 1
+Cost: 1 Blood
+Sigil: Many Lives, Airborne
 Tribe: Hooved
 Type: Rare
 
@@ -262,6 +280,15 @@ Name: Mole Man
 Portrait: None
 Power: 0
 Health: 6
+Cost: 1 Blood
+Sigil: Burrower, Mighty Leap
+Tribe: None
+Type: Rare
+
+Name: Mole Seaman
+Portrait: None
+Power: 1
+Health: 8
 Cost: 1 Blood
 Sigil: Burrower, Mighty Leap
 Tribe: None
@@ -407,6 +434,15 @@ Cost: 3 Blood
 Sigil: Waterborne
 Tribe: None
 
+Name: Great White
+Portrait: Shark
+Power: 4
+Health: 2
+Cost: 3 Blood
+Sigil: Waterborne
+Tribe: None
+Blood2: True
+
 Name: Skink
 Portrait: None
 Power: 1
@@ -449,29 +485,32 @@ Cost: 1 Blood
 Sigil: Airborne
 Tribe: Avian
 
-Name: Bell Tentacle
+Name: squid_bell
 Portrait: SquidBell
-Power: 3
+Power: Bell
 Health: 2
 Cost: 2 Blood
 Sigil: None
 Tribe: None
+Squid: True
 
-Name: Card Tentacle
+Name: squid_cards
 Portrait: SquidCards
-Power: 1
+Power: CardsInHand
 Health: 1
 Cost: 1 Blood
 Sigil: None
 Tribe: None
+Squid: True
 
-Name: Mirror Tentacle
+Name: squid_mirror
 Portrait: SquidMirror
-Power: 3
+Power: Mirror
 Health: 1
 Cost: 1 Blood
 Sigil: None
 Tribe: None
+Squid: True
 
 Name: Squirrel
 Portrait: None
@@ -529,6 +568,11 @@ Sigil: None
 Tribe: None
 Type: Rare
 
+Name: Vertabrae
+Power: 0
+Health: 1
+Snelk4: True
+
 Name: Turkey Vulture
 Portrait: Vulture
 Power: 3
@@ -567,6 +611,11 @@ Health: 1
 Type: Terrain
 Blood2: True
 
+Name: Broken Egg
+Portrait: None
+Health: 1
+Type: Terrain
+
 Name: Dam
 Portrait: None
 Health: 2
@@ -582,12 +631,14 @@ Portrait: None
 Health: 2
 Type: Terrain
 Golden: True
+Enhanced: True
 
 Name: Golden Pelt
 Portrait: PeltGolden
 Health: 3
 Type: Terrain
 Golden: True
+Enhanced: True
 
 Name: Rabbit Pelt
 Portrait: PeltHare
@@ -673,6 +724,7 @@ Sigil: Mighty Leap
 Type: Terrain
 
 Name: Hungry Child
+Child: True
 
 Name: Stump
 Portrait: None
@@ -684,6 +736,18 @@ Portrait: AquaSquirrel
 Power: 0
 Health: 1
 Sigil: Waterborne
+
+Name: Skeleton Crew
+Portrait: SkeletonPirate
+Power: 2
+Health: 1
+Sigil: Brittle
+
+Name: Zombie Parrot
+Portrait: SkeletonParrot
+Power: 2
+Health: 3
+Sigils: Airborne, Brittle
 
 Name: Wild Bull
 Portrait: Bull
@@ -710,7 +774,7 @@ Health: 1
 Cost: None
 Tribe: None
 Sigils: Repulsive
-Traits: Ijiraq
+Type: Rare
 
 Name: Flying Ant
 Portrait: AntFlying
@@ -776,7 +840,6 @@ Health: 4
 Cost: 3 Blood
 Tribe: Avian
 Sigils: Airborne
-Type: Rare
 
 Name: Red Hart
 Portrait: None
@@ -839,3 +902,31 @@ Cost: 1 Bone
 Tribe: Avian, Canine, Hooved, Reptile, Insect
 Sigils: Bifurcated Strike, Trifurcated Strike
 Type: Rare
+
+Name: Reginald
+Power: 1
+Health: 3
+Sigil: Touch of Death
+Cost: 3 Bones
+Deathcard: prospector, 3, 1, 0
+
+Name: Louis
+Power: 1
+Health: 1
+Sigils: Sprinter, Waterborne
+Cost: 1 Blood
+Deathcard: chief, 1, 3, 0
+
+Name: Kaminski
+Power: 0
+Health: 1
+Sigils: Sharp Quills, Guardian
+Cost: 1 Bone
+Deathcard: settlerwoman, 2, 4, 0
+
+Name: Kaycee
+Power: 1
+Health: 2
+Sigils: Bifurcated Strike, Sharp Quills
+Cost: 1 Blood
+Deathcard: wildling, 5, 2, 0
