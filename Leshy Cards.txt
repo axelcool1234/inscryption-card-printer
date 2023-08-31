@@ -35,7 +35,7 @@ Type: Rare
 Name: Worker Ant
 Portrait: Ant
 Power: Ants
-Health: 1
+Health: 2
 Cost: 1 Blood
 Sigil: None
 Tribe: Insect
@@ -527,6 +527,23 @@ Cost: 1 Blood
 Sigil: None
 Tribe: None
 
+# Covered by Vladde Cards
+# Name: Stinkbug
+# Portrait: Stinkbug_Talking
+# Power: 1
+# Health: 2
+# Cost: 2 Bones
+# Sigil: Stinky
+# Tribe: Insect
+
+Name: Stunted Wolf
+Portrait: Wolf_Talking
+Power: 2
+Health: 2
+Cost: 1 Blood
+Sigil: None
+Tribe: None
+
 Name: Wriggling Tail
 Portrait: SkinkTail
 Power: 0
@@ -685,10 +702,17 @@ Smoke: True
 
 Name: Starvation
 Portrait: None
-Power: 1
-Health: 1
+Power: Delete
+Health: Delete
 Tribe: None
 Sigil: Repulsive
+
+Name: Starvation
+Portrait: None
+Power: Delete
+Health: Delete
+Tribe: None
+Sigil: Repulsive, Airborne
 
 Name: Leaping Trap
 Portrait: Trap
@@ -786,12 +810,19 @@ Sigils: Airborne
 Traits: Ant
 
 Name: Mud Turtle
-Portrait: None
+Portrait: MudTurtleShelled
 Power: 2
 Health: 2
 Cost: 2 Blood
 Tribe: Reptile
 Sigils: Armored
+
+Name: Mud Turtle
+Portrait: MudTurtle
+Power: 2
+Health: 2
+Cost: 2 Blood
+Tribe: Reptile
 
 Name: Dire Wolf Pup
 Portrait: DireWolfCub
@@ -908,25 +939,25 @@ Power: 1
 Health: 3
 Sigil: Touch of Death
 Cost: 3 Bones
-Deathcard: prospector, 3, 1, 0
+Deathcard: prospector, Eyes: 3, Mouth: 1, False
 
 Name: Louis
 Power: 1
 Health: 1
 Sigils: Sprinter, Waterborne
 Cost: 1 Blood
-Deathcard: chief, 1, 3, 0
+Deathcard: chief, Eyes: 1, Mouth: 3, False
 
 Name: Kaminski
 Power: 0
 Health: 1
 Sigils: Sharp Quills, Guardian
 Cost: 1 Bone
-Deathcard: settlerwoman, 2, 4, 0
+Deathcard: settlerwoman, Eyes: 2, Mouth: 4, False
 
 Name: Kaycee
 Power: 1
 Health: 2
 Sigils: Bifurcated Strike, Sharp Quills
 Cost: 1 Blood
-Deathcard: wildling, 5, 2, 0
+Deathcard: wildling, Eyes: 5, Mouth: 2, False

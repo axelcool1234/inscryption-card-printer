@@ -137,7 +137,7 @@ def process_card_info(card_info, json_payload):
                 for gem in value.split(', '):
                     json_payload['gemCost'][gem] = True
             elif key == 'cost':
-                if value == 'None':
+                if value.lower() == 'none':
                     pass
                 elif value.split()[1].lower() == 'blood':
                     json_payload['bloodCost'] = int(value.split()[0])
@@ -163,7 +163,7 @@ def process_card_info(card_info, json_payload):
             elif key == 'deathcard':
                 data = value.split(', ')
                 json_payload['portrait'] = {'type':'deathcard','data':
-                    {"head":data[0],"eyes":int(data[1]), "mouth":int(data[2]),"lostEye":bool(data[3])}}
+                    {"head":data[0],"eyes":int(data[1][-1]) - 1, "mouth":int(data[2][-1]) - 1,"lostEye": True if data[3] == "True" else False}}
             elif key == 'name':
                 json_payload['name'] = value
             elif key == 'power':
@@ -173,10 +173,17 @@ def process_card_info(card_info, json_payload):
                 elif value.lower() in ('bell', 'cardsinhand', 'mirror', 'bones', 'ants'):
                     json_payload['power'] = 0
                     json_payload['staticon'] = value.lower()
+                elif value.lower() == 'delete':
+                    del json_payload['power']
+                    json_payload['hidePowerAndHealth'] = True
                 else:
                     json_payload['power'] = int(value)
             elif key == 'health':
-                json_payload['health'] = int(value)
+                if value.lower() == 'delete':
+                    del json_payload['health']
+                    json_payload['hidePowerAndHealth'] = True
+                else:
+                    json_payload['health'] = int(value)
             elif key == 'type':
                 if value.lower() == 'rare':
                     json_payload['rare'] = True
@@ -205,9 +212,8 @@ def process_card_info(card_info, json_payload):
     return json_payload
 
 
-def make_request(card_data):
+def make_request(card_data, endpoint_url):
     for card_info in card_data:
-        endpoint_url = f'http://localhost:8080/api/card/leshy/front?locale=default'
         json_payload = {
             'name': '',
             'power': 0,
@@ -225,11 +231,13 @@ def make_request(card_data):
             'temple': 'nature',
         }
 
+        if endpoint_url != 'http://localhost:8080/api/card/leshy/front?locale=default':
+            del json_payload['gemCost']
+
         json_payload = process_card_info(card_info, json_payload)
         json_payload = {key: value for key, value in json_payload.items() if value is not None}
         print(json_payload)
 
-        endpoint_url = 'http://localhost:8080/api/card/leshy/front?locale=default'''
         response = requests.post(endpoint_url, json = json_payload)
 
         if response.status_code == 201:
@@ -275,6 +283,13 @@ if __name__ == '__main__':
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
+    endpoint_url = f'http://localhost:8080/api/card/leshy/front?locale=default'
     card_data = read_entries('Leshy Cards.txt')
-    make_request(card_data)
+    make_request(card_data,  endpoint_url)
 
+    endpoint_url = f'https://api2.generator.cards/api/card/leshy/front?locale=default'
+    card_data = read_entries('Vladde Cards.txt')
+    make_request(card_data, endpoint_url)
+
+    # TODO: Fix gold emissions
+    # TODO: Fix starvation cards (they should have no attack or defense)
