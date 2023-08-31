@@ -162,6 +162,8 @@ def process_card_info(card_info, json_payload):
                     json_payload['portrait'] = {'type':'creature','creature':value}
             elif key == 'name':
                 json_payload['name'] = value
+                if value == 'Hungry Child':
+                    json_payload['child'] = True
             elif key == 'power':
                 if value.lower() == 'spilled blood':
                     json_payload['power'] = 0
@@ -188,6 +190,8 @@ def process_card_info(card_info, json_payload):
                 json_payload['smoke'] = True
             elif key == 'snelk':
                 json_payload['snelk'] = True
+            elif key == 'Blood2':
+                json_payload['blood2'] = True
     return json_payload
 
 
@@ -216,6 +220,7 @@ def make_request(card_data):
             'squid': False,
             'fused': False,
             'smoke': False,
+            'child': False,
         }
 
         json_payload = process_card_info(card_info, json_payload)

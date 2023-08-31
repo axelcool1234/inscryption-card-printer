@@ -565,6 +565,7 @@ Name: Bait Bucket
 Portrait: None
 Health: 1
 Type: Terrain
+Blood2: True
 
 Name: Dam
 Portrait: None
@@ -670,6 +671,8 @@ Portrait: Tree
 Health: 3
 Sigil: Mighty Leap
 Type: Terrain
+
+Name: Hungry Child
 
 Name: Stump
 Portrait: None
