@@ -34,7 +34,7 @@ Type: Rare
 
 Name: Worker Ant
 Portrait: Ant
-Power: 2
+Power: Ants
 Health: 1
 Cost: 1 Blood
 Sigil: None
@@ -42,7 +42,7 @@ Tribe: Insect
 
 Name: Ant Queen
 Portrait: None
-Power: 3
+Power: Ants
 Health: 2
 Cost: 2 Blood
 Sigil: Ant Spawner
@@ -248,6 +248,7 @@ Health: 1
 Cost: 1 Blood
 Sigil: Trifurcated Strike
 Tribe: Insect
+Type: Rare
 
 Name: Mole
 Portrait: None
@@ -264,6 +265,7 @@ Health: 6
 Cost: 1 Blood
 Sigil: Burrower, Mighty Leap
 Tribe: None
+Type: Rare
 
 Name: Moose Buck
 Portrait: Moose
@@ -280,6 +282,7 @@ Health: 3
 Cost: 1 Blood
 Sigil: Fledgling
 Tribe: Insect
+Type: Rare
 
 Name: Strange Pupa
 Portrait: Mothman_Stage2
@@ -288,6 +291,7 @@ Health: 3
 Cost: 1 Blood
 Sigil: Fledgling
 Tribe: Insect
+Type: Rare
 
 Name: Mothman
 Portrait: Mothman_Stage3
@@ -296,6 +300,7 @@ Health: 3
 Cost: 1 Blood
 Sigil: Airborne
 Tribe: Insect
+Type: Rare
 
 Name: Pack Mule
 Portrait: Mule
@@ -328,6 +333,7 @@ Health: 1
 Cost: 2 Blood
 Sigil: Unkillable
 Tribe: Reptile
+Type: Rare
 
 Name: Pack Rat
 Portrait: None
@@ -425,13 +431,15 @@ Cost: 2 Blood
 Sigil: None
 Tribe: Reptile
 
-# Name: Long Elk
-# Portrait: None
-# Power: 1
-# Health: 2
-# Cost: 4 Bones
-# Sigil: Sprinter, Touch of Death
-# Tribe: Hooved
+Name: Long Elk
+Snelk: True
+Power: 1
+Health: 2
+Cost: 4 Bones
+Sigil: Sprinter, Touch of Death
+Tribe: Hooved
+Type: Rare
+
 
 Name: Sparrow
 Portrait: None
@@ -519,6 +527,7 @@ Health: 7
 Cost: 4 Blood
 Sigil: None
 Tribe: None
+Type: Rare
 
 Name: Turkey Vulture
 Portrait: Vulture
@@ -597,14 +606,14 @@ Cost: 1 Blood
 Sigil: None
 Tribe: Insect
 
-# Name: Stoat
-# Portrait: None
-# Power: 1
-# Health: 2
-# Cost: 1 Blood
-# Tribe: None
-# Sigils: None
-# Traits: None
+Name: Stoat
+Portrait: None
+Power: 1
+Health: 2
+Cost: 1 Blood
+Tribe: None
+Sigils: None
+ Traits: None
 
 Name: The Smoke
 Portrait: Smoke
@@ -612,6 +621,7 @@ Power: 0
 Health: 3
 Tribe: None
 Sigil: Bone King
+Smoke: True
 
 Name: Greater Smoke
 Portrait: Smoke_Improved
@@ -619,6 +629,7 @@ Power: 1
 Health: 3
 Tribe: None
 Sigil: Bone King
+Smoke: True
 
 Name: Starvation
 Portrait: None
@@ -639,14 +650,14 @@ Power: 1
 Health: 2
 Cost: 1 Blood
 Sigil: Mighty Leap
-Type: Terrain
+Type: Special Terrain
 
 Name: Frozen Opossum
 Portrait: None
 Power: 0
 Health: 5
 Sigil: Frozen Away
-Type: Terrain
+Type: Special Terrain
 
 Name: Snowy Fir
 Portrait: Tree_SnowCovered
@@ -665,151 +676,163 @@ Portrait: None
 Health: 3
 Type: Terrain
 
-# Name: Wild Bull
-# Portrait: None
-# Power: 3
-# Health: 2
-# Cost: 2 Blood
-# Tribe: Hooved
-# Sigils: Rampager
-# Traits: None
+Name: AquaSquirrel
+Portrait: AquaSquirrel
+Power: 0
+Health: 1
+Sigil: Waterborne
 
-# Name: Cuckoo
-# Portrait: None
-# Power: 1
-# Health: 1
-# Cost: 1 Blood
-# Tribe: Avian
-# Sigils: Airborne, Brood Parasite
-# Traits: None
+Name: Wild Bull
+Portrait: Bull
+Power: 3
+Health: 2
+Cost: 2 Blood
+Tribe: Hooved
+Sigils: Rampager
+Traits: None
 
-# Name: Ijiraq
-# Portrait: None
-# Power: 4
-# Health: 1
-# Cost: None
-# Tribe: None
-# Sigils: Repulsive
-# Traits: Ijiraq
+Name: Cuckoo
+Portrait: None
+Power: 1
+Health: 1
+Cost: 1 Blood
+Tribe: Avian
+Sigils: Airborne, Brood Parasite
+Traits: None
 
-# Name: Flying Ant
-# Portrait: AntFlying
-# Power: 1
-# Health: 1
-# Cost: 1 Blood
-# Tribe: Insect
-# Sigils: Airborne
-# Traits: Ant
+Name: Ijiraq
+Portrait: None
+Power: 4
+Health: 1
+Cost: None
+Tribe: None
+Sigils: Repulsive
+Traits: Ijiraq
 
-# Name: Mud Turtle
-# Portrait: None
-# Power: 2
-# Health: 2
-# Cost: 2 Blood
-# Tribe: Reptile
-# Sigils: Armored
+Name: Flying Ant
+Portrait: AntFlying
+Power: Ants
+Health: 1
+Cost: 1 Blood
+Tribe: Insect
+Sigils: Airborne
+Traits: Ant
 
-# Name: Dire Wolf Pup
-# Portrait: None
-# Power: 1
-# Health: 1
-# Cost: 2 Blood
-# Tribe: Canine
-# Sigils: Bone Digger, Fledgling
+Name: Mud Turtle
+Portrait: None
+Power: 2
+Health: 2
+Cost: 2 Blood
+Tribe: Reptile
+Sigils: Armored
 
-# Name: Dire Wolf
-# Portrait: None
-# Power: 2
-# Health: 5
-# Cost: 3 Blood
-# Tribe: Canine
-# Sigils: Double Strike
+Name: Dire Wolf Pup
+Portrait: DireWolfCub
+Power: 1
+Health: 1
+Cost: 2 Blood
+Tribe: Canine
+Sigils: Bone Digger, Fledgling
 
-# Name: Mealworm
-# Portrait: None
-# Power: 0
-# Health: 2
-# Cost: 2 Bones
-# Tribe: Insect
-# Sigils: Morsel
+Name: Dire Wolf
+Portrait: None
+Power: 2
+Health: 5
+Cost: 3 Blood
+Tribe: Canine
+Sigils: Double Strike
 
-# Name: Wolverine
-# Portrait: None
-# Power: 1
-# Health: 3
-# Cost: 5 Bones
-# Tribe: None
-# Sigils: Blood Lust
+Name: Mealworm
+Portrait: MealWorm
+Power: 0
+Health: 2
+Cost: 2 Bones
+Tribe: Insect
+Sigils: Morsel
 
-# Name: Raccoon
-# Portrait: None
-# Power: 1
-# Health: 1
-# Cost: 1 Blood
-# Tribe: None
-# Sigils: Scavenger
+Name: Wolverine
+Portrait: None
+Power: 1
+Health: 3
+Cost: 5 Bones
+Tribe: None
+Sigils: Blood Lust
 
-# Name: Lammergeier
-# Portrait: None
-# Power: bones
-# Health: 4
-# Cost: 3 Blood
-# Tribe: Avian
-# Sigils: Airborne
+Name: Raccoon
+Portrait: None
+Power: 1
+Health: 1
+Cost: 1 Blood
+Tribe: None
+Sigils: Scavenger
 
-# Name: Red Hart
-# Portrait: None
-# Power: Spilled Blood
-# Health: 2
-# Cost: 2 Blood
-# Tribe: Hooved
-# Sigils: Sprinter
+Name: Lammergeier
+Portrait: None
+Power: bones
+Health: 4
+Cost: 3 Blood
+Tribe: Avian
+Sigils: Airborne
+Type: Rare
 
-# Name: Tadpole
-# Portrait: None
-# Portrait: None
-# Power: 0
-# Health: 1
-# Cost: None
-# Tribe: Reptile
-# Sigils: Waterborne, Fledgling
+Name: Red Hart
+Portrait: None
+Power: Spilled Blood
+Health: 2
+Cost: 2 Blood
+Tribe: Hooved
+Sigils: Sprinter
 
-# Name: Pelt Lice
-# Portrait: lice
-# Power: 1
-# Health: 1
-# Cost: 4 Blood
-# Tribe: Insect
-# Sigils: Double Strike
+Name: Tadpole
+Portrait: None
+Portrait: None
+Power: 0
+Health: 1
+Cost: None
+Tribe: Reptile
+Sigils: Waterborne, Fledgling
 
-# Name: Hodag
-# Portrait: None
-# Power: 1
-# Health: 5
-# Cost: 2 Blood
-# Tribe: None
-# Sigils: Blood Lust
+Name: Pelt Lice
+Portrait: Lice
+Power: 1
+Health: 1
+Cost: 4 Blood
+Tribe: Insect
+Sigils: Double Strike
+Type: Rare
 
-# Name: Great Kraken
-# Portrait: None
-# Power: 1
-# Health: 1
-# Cost: 1 Blood
-# Tribe: None
-# Sigils: WaterborneSquid
+Name: Hodag
+Portrait: None
+Power: 1
+Health: 5
+Cost: 2 Blood
+Tribe: None
+Sigils: Blood Lust
+Type: Rare
 
-# Name: Curious Egg
-# Portrait: hydraegg
-# Power: 0
-# Health: 1
-# Cost: 1 Bone
-# Tribe: None
-# Sigils: Finical Hatchling
+Name: Great Kraken
+Portrait: Kraken
+Power: 1
+Health: 1
+Cost: 1 Blood
+Tribe: None
+Sigils: WaterborneSquid
+Type: Rare
 
-# Name: Hydra
-# Portrait: Hydra
-# Power: 1
-# Health: 5
-# Cost: 1 Bone
-# Tribe: Avian, Canine, Hooved, Reptile, Insect
-# Sigils: Bifurcated Strike, Trifurcated Strike
+Name: Curious Egg
+Portrait: HydraEgg
+Power: 0
+Health: 1
+Cost: 1 Bone
+Tribe: None
+Sigils: Finical Hatchling
+Type: Rare
+
+Name: Hydra
+Portrait: Hydra
+Power: 1
+Health: 5
+Cost: 1 Bone
+Tribe: Avian, Canine, Hooved, Reptile, Insect
+Sigils: Bifurcated Strike, Trifurcated Strike
+Type: Rare

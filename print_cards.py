@@ -174,13 +174,20 @@ def process_card_info(card_info, json_payload):
             elif key == 'health':
                 json_payload['health'] = int(value)
             elif key == 'type':
-                if value == 'rare':
+                if value.lower() == 'rare':
                     json_payload['rare'] = True
-                elif value == 'terrain':
+                elif value.lower() == 'terrain':
                     json_payload['terrain'] = True
                     json_payload['terrainLayout'] = True
+                elif value.lower() == 'special terrain':
+                    json_payload['terrain'] = True
+                    json_payload['terrainLayout'] = False
             elif key == 'golden':
                 json_payload['golden'] = True
+            elif key == 'smoke':
+                json_payload['smoke'] = True
+            elif key == 'snelk':
+                json_payload['snelk'] = True
     return json_payload
 
 
@@ -208,7 +215,7 @@ def make_request(card_data):
             'golden': False,
             'squid': False,
             'fused': False,
-            'smoke': False
+            'smoke': False,
         }
 
         json_payload = process_card_info(card_info, json_payload)
