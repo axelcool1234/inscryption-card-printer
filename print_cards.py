@@ -286,11 +286,11 @@ if __name__ == '__main__':
         os.makedirs(output_folder)
 
     endpoint_url = f'http://localhost:8080/api/card/leshy/front?locale=default'
-    card_data = read_entries('Card Data/Leshy Cards.txt')
+    card_data = read_entries('card_data/leshy.txt')
     make_request(card_data, endpoint_url)
 
     endpoint_url = f'https://api2.generator.cards/api/card/leshy/front?locale=default'
-    card_data = read_entries('Card Dat/Vladde Cards.txt')
+    card_data = read_entries('card_data/leshy.txt')
     make_request(card_data, endpoint_url)
 
     # TODO: Fix gold emissions
