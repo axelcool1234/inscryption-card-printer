@@ -165,7 +165,7 @@ Portrait: ElkCub
 Power: 1
 Health: 1
 Cost: 1 Blood
-Sigil: Sprinter, Fledgling
+Sigil: Sprinter, Fledgling (1)
 Tribe: Hooved
 
 Name: Field Mice
@@ -307,7 +307,7 @@ Portrait: Mothman_Stage1
 Power: 0
 Health: 3
 Cost: 1 Blood
-Sigil: Fledgling
+Sigil: Fledgling (1)
 Tribe: Insect
 Type: Rare
 
@@ -316,7 +316,7 @@ Portrait: Mothman_Stage2
 Power: 0
 Health: 3
 Cost: 1 Blood
-Sigil: Fledgling
+Sigil: Fledgling (1)
 Tribe: Insect
 Type: Rare
 
@@ -369,6 +369,7 @@ Health: 2
 Cost: 2 Blood
 Sigil: Trinket Bearer
 Tribe: None
+Type: Rare
 
 Name: Porcupine
 Portrait: None
@@ -423,7 +424,7 @@ Portrait: None
 Power: 0
 Health: 2
 Cost: 1 Blood
-Sigil: Fledgling
+Sigil: Fledgling (1)
 Tribe: Avian
 
 Name: Great White
@@ -488,7 +489,7 @@ Tribe: Avian
 Name: squid_bell
 Portrait: SquidBell
 Power: Bell
-Health: 2
+Health: 3
 Cost: 2 Blood
 Sigil: None
 Tribe: None
@@ -506,7 +507,7 @@ Squid: True
 Name: squid_mirror
 Portrait: SquidMirror
 Power: Mirror
-Health: 1
+Health: 3
 Cost: 1 Blood
 Sigil: None
 Tribe: None
@@ -550,7 +551,6 @@ Power: 0
 Health: 2
 Cost: None
 Sigil: None
-Tribe: Reptile
 
 Name: Tail Feathers
 Portrait: Tail_Bird
@@ -619,7 +619,7 @@ Portrait: None
 Power: 1
 Health: 1
 Cost: 1 Blood
-Sigil: Fledgling
+Sigil: Fledgling (1)
 Tribe: Wolf
 
 Name: Bait Bucket
@@ -699,6 +699,7 @@ Health: 3
 Tribe: None
 Sigil: Bone King
 Smoke: True
+Enhanced: True
 
 Name: Starvation
 Portrait: None
@@ -830,7 +831,7 @@ Power: 1
 Health: 1
 Cost: 2 Blood
 Tribe: Canine
-Sigils: Bone Digger, Fledgling
+Sigils: Bone Digger, Fledgling (1)
 
 Name: Dire Wolf
 Portrait: None
@@ -887,7 +888,7 @@ Power: 0
 Health: 1
 Cost: None
 Tribe: Reptile
-Sigils: Waterborne, Fledgling
+Sigils: Waterborne, Fledgling (1)
 
 Name: Pelt Lice
 Portrait: Lice
@@ -939,7 +940,7 @@ Power: 1
 Health: 3
 Sigil: Touch of Death
 Cost: 3 Bones
-Deathcard: prospector, Eyes: 3, Mouth: 1, False
+Deathcard: settlerman, Eyes: 3, Mouth: 1, False
 
 Name: Louis
 Power: 1
@@ -951,7 +952,7 @@ Deathcard: chief, Eyes: 1, Mouth: 3, False
 Name: Kaminski
 Power: 0
 Health: 1
-Sigils: Sharp Quills, Guardian
+Sigils: Guardian, Sharp Quills
 Cost: 1 Bone
 Deathcard: settlerwoman, Eyes: 2, Mouth: 4, False
 

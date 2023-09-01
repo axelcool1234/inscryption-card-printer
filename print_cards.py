@@ -19,6 +19,9 @@ SIGILS_MAPPING = {
     'Sprinter': 'strafe',
     'Touch of Death': 'deathtouch',
     'Fledgling': 'evolve',
+    'Fledgling (1)': 'evolve_1',
+    'Fledgling (2)': 'evolve_2',
+    'Fledgling (3)': 'evolve_3',
     'Dam Builder': 'createdams',
     'Hoarder': 'tutor',
     'Burrower': 'whackamole',
@@ -233,7 +236,6 @@ def make_request(card_data, endpoint_url):
 
         if endpoint_url != 'http://localhost:8080/api/card/leshy/front?locale=default':
             del json_payload['gemCost']
-
         json_payload = process_card_info(card_info, json_payload)
         json_payload = {key: value for key, value in json_payload.items() if value is not None}
         print(json_payload)
@@ -284,12 +286,12 @@ if __name__ == '__main__':
         os.makedirs(output_folder)
 
     endpoint_url = f'http://localhost:8080/api/card/leshy/front?locale=default'
-    card_data = read_entries('Leshy Cards.txt')
-    make_request(card_data,  endpoint_url)
+    card_data = read_entries('Card Data/Leshy Cards.txt')
+    make_request(card_data, endpoint_url)
 
     endpoint_url = f'https://api2.generator.cards/api/card/leshy/front?locale=default'
-    card_data = read_entries('Vladde Cards.txt')
+    card_data = read_entries('Card Dat/Vladde Cards.txt')
     make_request(card_data, endpoint_url)
 
     # TODO: Fix gold emissions
-    # TODO: Fix starvation cards (they should have no attack or defense)
+    # TODO: Add red emissions
