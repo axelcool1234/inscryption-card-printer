@@ -290,7 +290,7 @@ if __name__ == '__main__':
     make_request(card_data, endpoint_url)
 
     endpoint_url = f'https://api2.generator.cards/api/card/leshy/front?locale=default'
-    card_data = read_entries('card_data/leshy.txt')
+    card_data = read_entries('card_data/vladde.txt')
     make_request(card_data, endpoint_url)
 
     # TODO: Fix gold emissions
