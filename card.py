@@ -32,7 +32,7 @@ class Card:
             'temple': temple
         }
         # Connect to database
-        self.conn = sqlite3.connect('database\\inscryption.db')
+        self.conn = sqlite3.connect('database/inscryption.db')
         self.cursor = self.conn.cursor()
         # Get notes
         if note_id is None:
@@ -143,17 +143,17 @@ class Card:
         return self.generate_image_buffer(im)
 
     def initialize_image_builder(self):
-        directory = f'{self.base}\\fonts'
+        directory = f'{self.base}/fonts'
 
         im = IM()
-        im.font(f'{directory}\\HEAVYWEIGHT.otf')
+        im.font(f'{directory}/HEAVYWEIGHT.otf')
         im.pointsize(200)
         im.background('None')
         im.filter('Box')
         return im
 
     def add_card_background(self, im):
-        directory = f'{self.base}\\cards'
+        directory = f'{self.base}/cards'
 
         match self.types['temple']:
             case 'wizard':
@@ -165,7 +165,7 @@ class Card:
             case _:
                 temple = ''
         rarity = self.types['rarity']
-        background_path = f'{directory}\\{temple}{rarity}.png'
+        background_path = f'{directory}/{temple}{rarity}.png'
         im.resource(background_path)
         return im
 
@@ -180,28 +180,28 @@ class Card:
         temple = self.get_temple()
         if temple == '':
             temple = 'leshy'
-        directory = f'{self.base}\\portraits\\{temple}'
-        im.resource(f'{directory}\\{self.filename}.png')
+        directory = f'{self.base}/portraits/{temple}'
+        im.resource(f'{directory}/{self.filename}.png')
         im.gravity('Center')
         im.geometry(1, -15)
         im.composite()
         return im
 
     def add_death_card(self, im):
-        directory = f'{self.base}\\deathcards'
+        directory = f'{self.base}/deathcards'
 
         attrs = self.get_death_card_from_database()
         # Base
-        dc = IM(f'{directory}\\base')
+        dc = IM(f'{directory}/base')
         dc.gravity('NorthWest')
         # Head
-        dc.resource(f'{directory}\\heads\\{attrs[0]}.png')
+        dc.resource(f'{directory}/heads/{attrs[0]}.png')
         dc.composite()
         # Mouth
-        dc.resource(f'{directory}\\mouth\\{attrs[2]}.png')
+        dc.resource(f'{directory}/mouth/{attrs[2]}.png')
         dc.geometry(40, 68).composite()
         # Eyes
-        dc.resource(f'{directory}\\eyes\\{attrs[1]}.png')
+        dc.resource(f'{directory}/eyes/{attrs[1]}.png')
         dc.geometry(40, 46).composite()
         if attrs[3]:
             dc.parens(
@@ -210,13 +210,13 @@ class Card:
         return im
 
     def add_tribes(self, im):
-        directory = f'{self.base}\\tribes'
+        directory = f'{self.base}/tribes'
         # TODO: Doesn't work with multi-tribe cards!
         tribePositions = [[-12, 3], [217, 5], [444, 7], [89, 451], [344, 452]]
         tribes = self.get_tribes_from_database()
         tribes = self.preserve_tribe_order(tribes)
         for i, tribe in enumerate(tribes):
-            tribeLocation = f'{directory}\\{tribe}.png'
+            tribeLocation = f'{directory}/{tribe}.png'
             position = tribePositions[i]
             im.parens(IM(tribeLocation)
                       .resize(None, 354)
@@ -229,13 +229,13 @@ class Card:
         return im
 
     def add_card_cost(self, im):
-        directory = f'{self.base}\\costs'
+        directory = f'{self.base}/costs'
         # TODO: Will need to update this later to allow multi-cost cards!
         cost_path = None
         for cost in self.costs:
             if self.costs[cost]:
                 amount = self.costs[cost]
-                cost_path = f'{directory}\\blood{amount}.png'
+                cost_path = f'{directory}/blood{amount}.png'
         if cost_path:
             im.parens(
                 IM(cost_path)
@@ -268,12 +268,12 @@ class Card:
         return im
 
     def add_special_stat_icons(self, im):
-        directory = f'{self.base}\\staticons'
+        directory = f'{self.base}/staticons'
         self.cursor.execute('SELECT staticon_name FROM card_staticons WHERE card_name = ? AND card_filename = ?', (self.name, self.filename))
         row = cursors.fetchone()
         if row:
             im.parens(
-                IM(f'{directory}\\{row}')
+                IM(f'{directory}/{row}')
                 .interpolate('Nearest')
                 .filter('Point')
                 .resize(245)
@@ -299,11 +299,11 @@ class Card:
         return im
 
     def add_sigils(self, im):
-        directory = f'{self.base}\\sigils'
+        directory = f'{self.base}/sigils'
         sigils = self.get_sigils_from_database()
         if sigils:
             if len(sigils) == 1:
-                sigil_path = f'{directory}\\{sigils[0]}.png'
+                sigil_path = f'{directory}/{sigils[0]}.png'
                 im.parens(
                     IM(sigil_path)
                     .interpolate('Nearest')
@@ -312,8 +312,8 @@ class Card:
                     .filter('Box')
                 ).gravity('NorthWest').geometry(221 + self.terrainLayoutXoffset, 733).composite()
             elif len(sigils) == 2:
-                sigil_path1 = f'{directory}\\{sigils[0]}.png'
-                sigil_path2 = f'{directory}\\{sigils[1]}.png'
+                sigil_path1 = f'{directory}/{sigils[0]}.png'
+                sigil_path2 = f'{directory}/{sigils[1]}.png'
                 im.filter('Box')
                 im.parens(
                     IM(sigil_path1)
@@ -332,9 +332,9 @@ class Card:
         return im
 
     def add_squid_title(self, im):
-        directory = f'{self.base}\\misc'
+        directory = f'{self.base}/misc'
         if 'squid' in self.flags:
-            squidTitle_path = f'{directory}\\squid_title.png'
+            squidTitle_path = f'{directory}/squid_title.png'
             im.parens(
                 IM(squidTitle_path)
                 .interpolate('Nearest')
@@ -348,14 +348,14 @@ class Card:
         return im
 #
     def add_card_name(self, im):
-        directory = f'{self.base}\\fonts'
+        directory = f'{self.base}/fonts'
         if self.name and 'squid' not in self.flags:
             # Default for english
             size = {'w': 570, 'h': 155}
             position = {'x': 0, 'y': 18}
             locale = 'en' # Change this for a different language
             if locale == 'ko':
-                im.font(f'{directory}\\Stylish-Regular.ttf')
+                im.font(f'{directory}/Stylish-Regular.ttf')
                 position = {'x': 4, 'y': 34}
             elif locale in ('jp', 'zh-cn', 'zh-tw'):
                 if locale == 'jp':
@@ -366,7 +366,7 @@ class Card:
                     font = 'fonts/NotoSerifTC-Bold.otf'
                 size = {'w': 570, 'h': 166}
                 position = {'x': 0, 'y': 16}
-                im.font(f'{directory}\\{locale}')
+                im.font(f'{directory}/{locale}')
             im.parens(
                 IM()
                 .pointsize()
@@ -377,16 +377,16 @@ class Card:
                 .gravity('Center')
                 .extent(size['w'], size['h'])
                 .resizeExt(lambda g: g.scale(106, 100).flag('!'))
-            ).gravity('North').geometry(position['x'], position['y']).composite().font(f'{directory}\\HEAVYWEIGHT.otf')
+            ).gravity('North').geometry(position['x'], position['y']).composite().font(f'{directory}/HEAVYWEIGHT.otf')
 
         return im
     def add_card_border(self, im):
         # TODO: Implement this!
         pass
     def apply_emission_effects(self, im):
-        directory = f'{self.base}\\emissions'
+        directory = f'{self.base}/emissions'
         if 'enhanced' in self.flags and 'golden' not in self.flags:
-            emission_path = f'{directory}\\{self.filename}.png'
+            emission_path = f'{directory}/{self.filename}.png'
             if emission_path and os.path.exists(emission_path):
                 im.parens(
                     IM(emission_path)
@@ -400,13 +400,13 @@ class Card:
         return im
 
     def add_golden_effect(self, im):
-        directory = f'{self.base}\\emissions'
+        directory = f'{self.base}/emissions'
         if 'enhanced' in self.flags and 'golden' in self.flags:
             im.parens(
                 IM().command('-clone', '0', '-fill', 'rgb(255,128,0)', '-colorize', '75')
             ).geometry(0, 0).compose('HardLight').composite()
 
-            emission_path = f'{directory}\\{self.filename}.png'
+            emission_path = f'{directory}/{self.filename}.png'
             if emission_path and os.path.exists(emission_path):
                 im.parens(
                     IM(emission_path)
@@ -420,10 +420,10 @@ class Card:
         return im
 
     def add_long_elk_decal(self, im):
-        directory = f'{self.base}\\decals'
+        directory = f'{self.base}/decals'
         decals = self.get_decals_from_database()
         if 'snelk' in decals:
-            longElkDecalPath = f'{directory}\\snelk.png'
+            longElkDecalPath = f'{directory}/snelk.png'
             im.parens(
                 IM(longElkDecalPath)
                 .interpolate('Nearest')
@@ -435,12 +435,12 @@ class Card:
         return im
     def add_decals(self, im):
         # TODO: Add a helper function that gives priority to certain decals. Add a column to decal table for priority!
-        directory = f'{self.base}\\decals'
+        directory = f'{self.base}/decals'
         decals = self.get_decals_from_database()
         if decals:
             for decal in decals:
                 if decal != 'snelk':
-                    decal_path = f'{directory}\\{decal}.png'
+                    decal_path = f'{directory}/{decal}.png'
                     im.parens(
                         IM(decal_path)
                         .filter('Box')
@@ -459,8 +459,6 @@ class Card:
 def buffer_from_command_builder(im, input_data=None, filetype='PNG'):
     command_args = ['magick'] + im.parts() + [f'{filetype}:-']
     command = ' '.join(command_args)
-    print(command)
-    print('magick -font resource\\fonts\\HEAVYWEIGHT.otf -pointsize 200 -background None -filter Box resource\\cards\\rare.png resource\\portraits\\leshy\\amalgam.png -gravity Center -geometry +1-15 -composite -resize x1050 -gravity NorthWest ( resource\\tribes\\bird.png -resize x354 -gravity NorthWest -alpha Set -channel A -evaluate multiply 0.4 +channel ) -geometry -12+3 -composite ( resource\\tribes\\canine.png -resize x354 -gravity NorthWest -alpha Set -channel A -evaluate multiply 0.4 +channel ) -geometry +217+5 -composite ( resource\\tribes\\hooved.png -resize x354 -gravity NorthWest -alpha Set -channel A -evaluate multiply 0.4 +channel ) -geometry +444+7 -composite ( resource\\tribes\\reptile.png -resize x354 -gravity NorthWest -alpha Set -channel A -evaluate multiply 0.4 +channel ) -geometry +89+451 -composite ( resource\\tribes\\insect.png -resize x354 -gravity NorthWest -alpha Set -channel A -evaluate multiply 0.4 +channel ) -geometry +344+452 -composite ( resource\\costs\\blood2.png -interpolate Nearest -filter Point -resize 284x -filter Box -gravity East ) -gravity NorthEast -geometry +32+110 -composite -gravity NorthWest ( -pointsize 209 -size 114x215 label:3 -gravity East -extent 114x215 ) -gravity NorthEast -geometry +32+815 -composite ( -pointsize 209 -size 114x215 -gravity West label:3 -extent 114x215 ) -gravity NorthWest -geometry +68+729 -composite ( +pointsize -size 570x155 -background None label:Amalgam -trim -gravity Center -extent 570x155 -resize 106%x100%! ) -gravity North -geometry +0+18 -composite -font resource\\fonts\\HEAVYWEIGHT.otf PNG:-')
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     stdout, stderr = process.communicate(input=input_data)
