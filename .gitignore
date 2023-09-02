@@ -1,4 +1,24 @@
-/Output
-/.idea
-/venv
-/resource
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+
+# IDE-specific files
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+
+# Miscellaneous
+*.pyc
+.DS_Store
+
+# Project specific folders
+output/
+resource/
+database/inscryption.db
