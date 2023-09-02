@@ -79,8 +79,22 @@ class Card:
         rows = self.cursor.fetchall()
         tribes = []
         for row in rows:
-            tribes.append(row)
-        return tribes[0]
+            tribes.append(row[0])
+        return tribes
+    def get_sigils_from_database(self):
+        self.cursor.execute('SELECT sigil_filename FROM card_sigils WHERE card_name = ? AND card_filename = ?', (self.name, self.filename))
+        rows = self.cursor.fetchall()
+        sigils = []
+        for row in rows:
+            sigils.append(row[0])
+        return sigils
+    def get_decals_from_database(self):
+        self.cursor.execute('SELECT decal_filename FROM card_decals WHERE card_name = ? AND card_filename = ?', (self.name, self.filename))
+        rows = self.cursor.fetchall()
+        decals = []
+        for row in rows:
+            decals.append(row[0])
+        return decals
     def get_temple(self):
         match self.types['temple']:
             case 'wizard':
@@ -97,28 +111,35 @@ class Card:
             return 0
         else:
             return -70
+    def preserve_tribe_order(self, tribes):
+        '''Tribe order is determined by the tribe table's priority in the database.'''
+        self.cursor.execute('SELECT filename FROM tribes ORDER BY priority')
+        rows = self.cursor.fetchall()
+        ordered_tribes = []
+        for row in rows:
+            if row[0] in tribes:
+                ordered_tribes.append(row[0])
+        return ordered_tribes
+
     def generate_card_image(self):
         im = self.initialize_image_builder()
         im = self.add_card_background(im)
         im = self.add_card_portrait(im)
-
         # Resize
         im.resize(None, self.fullsizeCardHeight) # 1050 pixels @ 300 dpi = 3.5 inches
         # Set default gravity
         im.gravity('NorthWest')
-
         im = self.add_tribes(im)
         im = self.add_card_cost(im)
         im = self.add_health(im)
-        # im = self.add_special_stat_icons(im)
-        # im = self.add_sigils(im)
-        # im = self.add_squid_title(im)
-        # im = self.add_card_name(im)
-        # im = self.apply_emission_effects(im)
-        # im = self.add_decals(im)
-        # im = self.add_golden_effect(im)
-        # im = self.add_long_elk_decal(im)
-        #
+        im = self.add_special_stat_icons(im)
+        im = self.add_sigils(im)
+        im = self.add_squid_title(im)
+        im = self.add_card_name(im)
+        im = self.apply_emission_effects(im)
+        im = self.add_decals(im)
+        im = self.add_golden_effect(im)
+        im = self.add_long_elk_decal(im)
         return self.generate_image_buffer(im)
 
     def initialize_image_builder(self):
@@ -190,8 +211,10 @@ class Card:
 
     def add_tribes(self, im):
         directory = f'{self.base}\\tribes'
+        # TODO: Doesn't work with multi-tribe cards!
         tribePositions = [[-12, 3], [217, 5], [444, 7], [89, 451], [344, 452]]
         tribes = self.get_tribes_from_database()
+        tribes = self.preserve_tribe_order(tribes)
         for i, tribe in enumerate(tribes):
             tribeLocation = f'{directory}\\{tribe}.png'
             position = tribePositions[i]
@@ -208,14 +231,14 @@ class Card:
     def add_card_cost(self, im):
         directory = f'{self.base}\\costs'
         # TODO: Will need to update this later to allow multi-cost cards!
-        costPath = None
+        cost_path = None
         for cost in self.costs:
             if self.costs[cost]:
                 amount = self.costs[cost]
-                costPath = f'{directory}\\blood{amount}.png'
-        if costPath:
+                cost_path = f'{directory}\\blood{amount}.png'
+        if cost_path:
             im.parens(
-                IM(costPath)
+                IM(cost_path)
                 .interpolate('Nearest')
                 .filter('Point')
                 .resize(284)
@@ -243,180 +266,190 @@ class Card:
             ).gravity('NorthEast').geometry(32 - self.terrainLayoutXoffset, 815).composite()
 
         return im
+
+    def add_special_stat_icons(self, im):
+        directory = f'{self.base}\\staticons'
+        self.cursor.execute('SELECT staticon_name FROM card_staticons WHERE card_name = ? AND card_filename = ?', (self.name, self.filename))
+        row = cursors.fetchone()
+        if row:
+            im.parens(
+                IM(f'{directory}\\{row}')
+                .interpolate('Nearest')
+                .filter('Point')
+                .resize(245)
+                .filter('Box')
+                .gravity('NorthWest')
+            ).geometry(5, 705).composite()
+        elif self.stats['power'] is not None:
+
+            drawPower = not (
+                (self.stats['power'] == 0 and (self.types['rarity'] == 'terrain' and 'no_terrain_layout' not in self.flags)) or 'hide_power_and_health' in self.flags)
+            if drawPower:
+                w = 114
+                h = 215
+                im.parens(
+                    IM()
+                    .pointsize(209)
+                    .size(w, h)
+                    .gravity('West')
+                    .label(self.stats['power'])
+                    .extent(w, h)
+                ).gravity('NorthWest').geometry(68, 729).composite()
+
+        return im
+
+    def add_sigils(self, im):
+        directory = f'{self.base}\\sigils'
+        sigils = self.get_sigils_from_database()
+        if sigils:
+            if len(sigils) == 1:
+                sigil_path = f'{directory}\\{sigils[0]}.png'
+                im.parens(
+                    IM(sigil_path)
+                    .interpolate('Nearest')
+                    .filter('Point')
+                    .resize(None, 253)
+                    .filter('Box')
+                ).gravity('NorthWest').geometry(221 + self.terrainLayoutXoffset, 733).composite()
+            elif len(sigils) == 2:
+                sigil_path1 = f'{directory}\\{sigils[0]}.png'
+                sigil_path2 = f'{directory}\\{sigils[1]}.png'
+                im.filter('Box')
+                im.parens(
+                    IM(sigil_path1)
+                    .resize(None, 180)
+                ).gravity('NorthWest').geometry(180 + self.terrainLayoutXoffset, 833).composite()
+                im.parens(
+                    IM(sigil_path2)
+                    .resize(None, 180)
+                ).gravity('NorthWest').geometry(331 + self.terrainLayoutXoffset, 720).composite()
+            # TODO: Must implement 3 and 4 sigils on a card at some point!
+            # elif len(sigils) == 3:
+            #     pass
+            # elif len(sigils) == 4:
+            #     pass
+
+        return im
+
+    def add_squid_title(self, im):
+        directory = f'{self.base}\\misc'
+        if 'squid' in self.flags:
+            squidTitle_path = f'{directory}\\squid_title.png'
+            im.parens(
+                IM(squidTitle_path)
+                .interpolate('Nearest')
+                .filter('Point')
+                .resize(None, 152)
+                .filter('Box')
+                .gravity('North')
+                .geometry(0, 20)
+            ).composite()
+
+        return im
 #
-#     def add_special_stat_icons(self, im, card):
-#         if card.statIcon:
-#             im.parens(
-#                 IM(self.resource.get('staticon', card.statIcon))
-#                 .interpolate('Nearest')
-#                 .filter('Point')
-#                 .resize(245)
-#                 .filter('Box')
-#                 .gravity('NorthWest')
-#             ).geometry(5, 705)
-#             .composite()
-#         elif card.power is not None:
-#             drawPower = not (
-#                         card.power == 0 and card.flags.terrainLayout or card.flags.hidePowerAndHealth)
-#             if drawPower:
-#                 w = 114
-#                 h = 215
-#                 im.parens(
-#                     IM()
-#                     .pointsize(209)
-#                     .size(w, h)
-#                     .gravity('West')
-#                     .label(card.power)
-#                     .extent(w, h)
-#                 ).gravity('NorthWest')
-#                 .geometry(68, 729)
-#                 .composite()
-#
-#         return im
-#
-#     def add_sigils(self, im, card):
-#         sigils = card.sigils[:2] if card.sigils else []
-#         if sigils:
-#             if len(sigils) == 1:
-#                 sigilPath = self.resource.get('sigil', sigils[0])
-#                 im.parens(
-#                     IM(sigilPath)
-#                     .interpolate('Nearest')
-#                     .filter('Point')
-#                     .resize(None, 253)
-#                     .filter('Box')
-#                 ).gravity('NorthWest')
-#                 .geometry(221 + terrainLayoutXoffset, 733)
-#                 .composite()
-#             elif len(sigils) == 2:
-#                 sigilPath1 = self.resource.get('sigil', sigils[0])
-#                 sigilPath2 = self.resource.get('sigil', sigils[1])
-#                 im.filter('Box')
-#                 im.parens(
-#                     IM(sigilPath1)
-#                     .resize(None, 180)
-#                 ).gravity('NorthWest')
-#                 .geometry(180 + terrainLayoutXoffset, 833)
-#                 .composite()
-#                 im.parens(
-#                     IM(sigilPath2)
-#                     .resize(None, 180)
-#                 ).gravity('NorthWest')
-#                 .geometry(331 + terrainLayoutXoffset, 720)
-#                 .composite()
-#
-#         return im
-#
-#     def add_squid_title(self, im, card):
-#         if card.flags.squid:
-#             squidTitlePath = self.resource.get('misc', 'squid_title')
-#             im.parens(
-#                 IM(squidTitlePath)
-#                 .interpolate('Nearest')
-#                 .filter('Point')
-#                 .resize(None, 152)
-#                 .filter('Box')
-#                 .gravity('North')
-#                 .geometry(0, 20)
-#             ).composite()
-#
-#         return im
-#
-#     def add_card_name(self, im, card):
-#         if card.name:
-#             escapedName = card.name.replace('[\\']', '')
-#             size = {'w': 570, 'h': 155}
-#             position = {'x': 0, 'y': 18}
-#             locale = self.options.locale
-#             if locale == 'ko':
-#                 im.font(self.resource.get('font', locale))
-#                 position = {'x': 4, 'y': 34}
-#             elif locale in ('jp', 'zh-cn', 'zh-tw'):
-#                 size = {'w': 570, 'h': 166}
-#                 position = {'x': 0, 'y': 16}
-#                 im.font(self.resource.get('font', locale))
-#             im.parens(
-#                 IM()
-#                 .pointsize()
-#                 .size(size['w'], size['h'])
-#                 .background('None')
-#                 .label(escapedName)
-#                 .trim()
-#                 .gravity('Center')
-#                 .extent(size['w'], size['h'])
-#                 .resizeExt(g = > g.scale(106, 100).flag('!'))
-#             ).gravity('North')
-#             .geometry(position['x'], position['y'])
-#             .composite()
-#             .font(self.resource.get('font', 'default'))
-#
-#         return im
-#
-#     def apply_emission_effects(self, im, card):
-#         if card.flags.enhanced and card.portrait.type == 'resource':
-#             if self.resource.has('emission', card.portrait.resourceId):
-#                 emissionPath = self.resource.get('emission', card.portrait.resourceId)
-#                 im.parens(
-#                     IM(emissionPath)
-#                     .interpolate('Nearest')
-#                     .filter('Point')
-#                     .resize(None, 605)
-#                     .filter('Box')
-#                     .gravity('NorthWest')
-#                 ).composite()
-#
-#         return im
-#
-#     def add_decals(self, im, card):
-#         if card.decals:
-#             for decal in card.decals:
-#                 if decal['id']:
-#                     decalId = decal['id']
-#                     decalPath = self.resource.get('decal', decalId)
-#                     if decalPath:
-#                         offsetX = decal['x']
-#                         offsetY = decal['y']
-#                         size = decal['size']
-#                         im.parens(
-#                             IM(decalPath)
-#                             .interpolate('Nearest')
-#                             .filter('Point')
-#                             .resize(size, None)
-#                             .filter('Box')
-#                             .gravity('NorthWest')
-#                             .geometry(offsetX, offsetY)
-#                         ).composite()
-#
-#         return im
-#
-#     def add_golden_effect(self, im, card):
-#         if card.flags.enhanced and card.portrait.type == 'creature':
-#             goldenEffectPath = self.resource.get('misc', 'golden')
-#             im.parens(
-#                 IM(goldenEffectPath)
-#                 .interpolate('Nearest')
-#                 .filter('Point')
-#                 .resize(None, 1080)
-#                 .filter('Box')
-#                 .gravity('NorthWest')
-#             ).composite()
-#
-#         return im
-#
-#     def add_long_elk_decal(self, im, card):
-#         if card.portrait.type == 'creature':
-#             longElkDecalPath = self.resource.get('misc', 'long_elk')
-#             im.parens(
-#                 IM(longElkDecalPath)
-#                 .interpolate('Nearest')
-#                 .filter('Point')
-#                 .resize(None, 1080)
-#                 .filter('Box')
-#                 .gravity('NorthWest')
-#             ).composite()
-#
-#         return im
-#
+    def add_card_name(self, im):
+        directory = f'{self.base}\\fonts'
+        if self.name and 'squid' not in self.flags:
+            # Default for english
+            size = {'w': 570, 'h': 155}
+            position = {'x': 0, 'y': 18}
+            locale = 'en' # Change this for a different language
+            if locale == 'ko':
+                im.font(f'{directory}\\Stylish-Regular.ttf')
+                position = {'x': 4, 'y': 34}
+            elif locale in ('jp', 'zh-cn', 'zh-tw'):
+                if locale == 'jp':
+                    font = 'ShipporiMincho-ExtraBold.ttf'
+                elif locale == 'zh-cn':
+                    font = 'fonts/NotoSerifSC-Bold.otf'
+                elif locale == 'zh-tw':
+                    font = 'fonts/NotoSerifTC-Bold.otf'
+                size = {'w': 570, 'h': 166}
+                position = {'x': 0, 'y': 16}
+                im.font(f'{directory}\\{locale}')
+            im.parens(
+                IM()
+                .pointsize()
+                .size(size['w'], size['h'])
+                .background('None')
+                .label(self.name)
+                .trim()
+                .gravity('Center')
+                .extent(size['w'], size['h'])
+                .resizeExt(lambda g: g.scale(106, 100).flag('!'))
+            ).gravity('North').geometry(position['x'], position['y']).composite().font(f'{directory}\\HEAVYWEIGHT.otf')
+
+        return im
+    def add_card_border(self, im):
+        # TODO: Implement this!
+        pass
+    def apply_emission_effects(self, im):
+        directory = f'{self.base}\\emissions'
+        if 'enhanced' in self.flags and 'golden' not in self.flags:
+            emission_path = f'{directory}\\{self.filename}.png'
+            if emission_path and os.path.exists(emission_path):
+                im.parens(
+                    IM(emission_path)
+                    .interpolate('Nearest')
+                    .filter('Point')
+                    .resize(None, 605)
+                    .filter('Box')
+                    .gravity('NorthWest')
+                ).composite()
+
+        return im
+
+    def add_golden_effect(self, im):
+        directory = f'{self.base}\\emissions'
+        if 'enhanced' in self.flags and 'golden' in self.flags:
+            im.parens(
+                IM().command('-clone', '0', '-fill', 'rgb(255,128,0)', '-colorize', '75')
+            ).geometry(0, 0).compose('HardLight').composite()
+
+            emission_path = f'{directory}\\{self.filename}.png'
+            if emission_path and os.path.exists(emission_path):
+                im.parens(
+                    IM(emission_path)
+                    .interpolate('Nearest')
+                    .filter('Point')
+                    .resize(None, 605)
+                    .filter('Box')
+                    .gravity('NorthWest')
+                ).composite()
+
+        return im
+
+    def add_long_elk_decal(self, im):
+        directory = f'{self.base}\\decals'
+        decals = self.get_decals_from_database()
+        if 'snelk' in decals:
+            longElkDecalPath = f'{directory}\\snelk.png'
+            im.parens(
+                IM(longElkDecalPath)
+                .interpolate('Nearest')
+                .filter('Point')
+                .resize(None, 1080)
+                .filter('Box')
+                .gravity('NorthWest')
+            ).composite()
+        return im
+    def add_decals(self, im):
+        # TODO: Add a helper function that gives priority to certain decals. Add a column to decal table for priority!
+        directory = f'{self.base}\\decals'
+        decals = self.get_decals_from_database()
+        if decals:
+            for decal in decals:
+                if decal != 'snelk':
+                    decal_path = f'{directory}\\{decal}.png'
+                    im.parens(
+                        IM(decal_path)
+                        .filter('Box')
+                        .resize(None, self.fullsizeCardHeight)
+                    ).gravity('Center').composite()
+        return im
+
+
+
     def generate_image_buffer(self, im):
         return buffer_from_command_builder(im)
 #
@@ -427,7 +460,7 @@ def buffer_from_command_builder(im, input_data=None, filetype='PNG'):
     command_args = ['magick'] + im.parts() + [f'{filetype}:-']
     command = ' '.join(command_args)
     print(command)
-    print('magick -font resource\\fonts\\HEAVYWEIGHT.otf -pointsize 200 -background None -filter Box resource\\cards\\common.png resource\\portraits\\leshy\\adder.png -gravity Center -geometry +1-15 -composite -resize x1050 -gravity NorthWest ( -pointsize 209 -size 114x215 label:1 -gravity East -extent 114x215 ) -gravity NorthEast -geometry +32+815 -composite ( -pointsize 209 -size 114x215 -gravity West label:1 -extent 114x215 ) -gravity NorthWest -geometry +68+729 -composite ( resource\\sigils\\deathtouch.png -interpolate Nearest -filter Point -resize x253 -filter Box ) -gravity NorthWest -geometry +221+733 -composite ( +pointsize -size 570x155 -background None label:Adder -trim -gravity Center -extent 570x155 -resize 106%x100%! ) -gravity North -geometry +0+18 -composite -font resource\\fonts\\HEAVYWEIGHT.otf PNG:-')
+    print('magick -font resource\\fonts\\HEAVYWEIGHT.otf -pointsize 200 -background None -filter Box resource\\cards\\rare.png resource\\portraits\\leshy\\amalgam.png -gravity Center -geometry +1-15 -composite -resize x1050 -gravity NorthWest ( resource\\tribes\\bird.png -resize x354 -gravity NorthWest -alpha Set -channel A -evaluate multiply 0.4 +channel ) -geometry -12+3 -composite ( resource\\tribes\\canine.png -resize x354 -gravity NorthWest -alpha Set -channel A -evaluate multiply 0.4 +channel ) -geometry +217+5 -composite ( resource\\tribes\\hooved.png -resize x354 -gravity NorthWest -alpha Set -channel A -evaluate multiply 0.4 +channel ) -geometry +444+7 -composite ( resource\\tribes\\reptile.png -resize x354 -gravity NorthWest -alpha Set -channel A -evaluate multiply 0.4 +channel ) -geometry +89+451 -composite ( resource\\tribes\\insect.png -resize x354 -gravity NorthWest -alpha Set -channel A -evaluate multiply 0.4 +channel ) -geometry +344+452 -composite ( resource\\costs\\blood2.png -interpolate Nearest -filter Point -resize 284x -filter Box -gravity East ) -gravity NorthEast -geometry +32+110 -composite -gravity NorthWest ( -pointsize 209 -size 114x215 label:3 -gravity East -extent 114x215 ) -gravity NorthEast -geometry +32+815 -composite ( -pointsize 209 -size 114x215 -gravity West label:3 -extent 114x215 ) -gravity NorthWest -geometry +68+729 -composite ( +pointsize -size 570x155 -background None label:Amalgam -trim -gravity Center -extent 570x155 -resize 106%x100%! ) -gravity North -geometry +0+18 -composite -font resource\\fonts\\HEAVYWEIGHT.otf PNG:-')
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     stdout, stderr = process.communicate(input=input_data)
@@ -441,12 +474,7 @@ def buffer_from_command_builder(im, input_data=None, filetype='PNG'):
 import sqlite3
 conn = sqlite3.connect('database/inscryption.db')
 cursors = conn.cursor()
-# name = 'Adder'
-# filename = 'Adder'
-# cursors.execute(f'SELECT name, filename FROM cards WHERE name = {name} AND filename = {filename}')
-# row = cursors.fetchone()
-# conn.close()
-row = ('Amalgam', 'Amalgam', 3, 3, 2, 0, 0, 0, 0, 0, 'common', 'nature', None)
+row = ('Amalgam', 'Amalgam', 3, 3, 2, 0, 0, 0, 0, 0, 'rare', 'nature', None)
 card = Card(*row)
 card_image_buffer = card.generate_card_image()
 

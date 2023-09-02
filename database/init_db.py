@@ -6,6 +6,7 @@ cursor = conn.cursor()
 
 # Dropping TABLEs
 cursor.execute('DROP TABLE IF EXISTS flags;')
+cursor.execute('DROP TABLE IF EXISTS staticons;')
 cursor.execute('DROP TABLE IF EXISTS decals;')
 cursor.execute('DROP TABLE IF EXISTS notes;')
 cursor.execute('DROP TABLE IF EXISTS sigils;')
@@ -16,9 +17,14 @@ cursor.execute('DROP TABLE IF EXISTS card_sigils;')
 cursor.execute('DROP TABLE IF EXISTS card_flags;')
 cursor.execute('DROP TABLE IF EXISTS card_decals;')
 cursor.execute('DROP TABLE IF EXISTS death_cards;')
+cursor.execute('DROP TABLE IF EXISTS card_staticons;')
 
 # CREATE TABLE statements
 cursor.execute('''CREATE TABLE flags (
+    name VARCHAR(45) PRIMARY KEY
+);''')
+
+cursor.execute('''CREATE TABLE staticons (
     name VARCHAR(45) PRIMARY KEY
 );''')
 
@@ -45,6 +51,7 @@ cursor.execute('''CREATE TABLE sigils (
 cursor.execute(''' CREATE TABLE tribes (
     name VARCHAR(45),
     filename VARCHAR(45),
+    priority INT,
     note_id INT,
     PRIMARY KEY (name, filename)
 );''')
@@ -112,6 +119,16 @@ cursor.execute('''CREATE TABLE card_flags (
     FOREIGN KEY (flag_name) REFERENCES flags (name)
 );''')
 
+cursor.execute('''CREATE TABLE card_staticons (
+    card_name VARCHAR(45),
+    card_filename VARCHAR(45),  
+    staticon_name INTEGER,          
+    PRIMARY KEY (card_name, card_filename, staticon_name),
+    FOREIGN KEY (card_name) REFERENCES card (name),
+    FOREIGN KEY (card_filename) REFERENCES cards (filename),
+    FOREIGN KEY (staticon_name) REFERENCES staticons (name)
+);''')
+
 
 cursor.execute('''CREATE TABLE card_decals (
     card_name VARCHAR(45),
@@ -126,6 +143,18 @@ cursor.execute('''CREATE TABLE card_decals (
 
 # INSERT Statements
 # Flags
+staticon_data = [
+    ('ants',),
+    ('sacrificesthisturn',),
+    ('bell',),
+    ('cardsinhand',),
+    ('mirror',),
+    ('bones',),
+    ('greengems',)
+]
+for data in staticon_data:
+    cursor.execute('INSERT INTO staticons (name) VALUES (?)', data)
+
 flag_data = [
     ('golden',),
     ('no_terrain_layout',),
@@ -134,13 +163,6 @@ flag_data = [
     ('red_emission',),
     ('hide_power_and_health',),
     ('death_card',),
-    ('ants',),
-    ('sacrificesthisturn',),
-    ('bell',),
-    ('cardsinhand',),
-    ('mirror',),
-    ('bones',),
-    ('greengems',)
 ]
 for data in flag_data:
     cursor.execute('INSERT INTO flags (name) VALUES (?)', data)
@@ -178,14 +200,14 @@ for data in note_data:
 
 # Tribes
 tribe_data = [
-    ('Reptilian', 'reptile', None),
-    ('Canine', 'canine', None),
-    ('Avian', 'bird', None),
-    ('Hooved', 'hooved', None),
-    ('Insectoid', 'insect', None)
+    ('Avian', 'bird', 1, None),
+    ('Canine', 'canine', 2, None),
+    ('Hooved', 'hooved', 3, None),
+    ('Reptilian', 'reptile', 4, None),
+    ('Insectoid', 'insect', 5, None)
 ]
 for data in tribe_data:
-    cursor.execute('INSERT INTO tribes (name, filename, note_id) VALUES (?, ?, ?)', data)
+    cursor.execute('INSERT INTO tribes (name, filename, priority, note_id) VALUES (?, ?, ?, ?)', data)
 
 # Sigils
 sigil_data = [
@@ -305,7 +327,7 @@ for data in sigil_data:
 # Blood Cards
 blood_card_data = [
     ('Adder', 'Adder', 1, 1, 2, 'common', 'nature', None),
-    ('Amalgam', 'Amalgam', 3, 3, 2, 'common', 'nature', None),
+    ('Amalgam', 'Amalgam', 3, 3, 2, 'rare', 'nature', None),
     ('Worker Ant', 'Ant', None, 2, 1, 'common', 'nature', None),
     ('Ant Queen', 'AntQueen', None, 3, 2, 'common', 'nature', None),
     ('Beaver', 'Beaver', 1, 4, 2, 'common', 'nature', None),
@@ -471,8 +493,8 @@ card_tribe_data = [
     ('Amalgam', 'Amalgam', 'Avian', 'bird'),
     ('Amalgam', 'Amalgam', 'Canine', 'canine'),
     ('Amalgam', 'Amalgam', 'Hooved', 'hooved'),
-    ('Amalgam', 'Amalgam', 'Reptilian', 'reptile'),
     ('Amalgam', 'Amalgam', 'Reptilian', 'insect'),
+    ('Amalgam', 'Amalgam', 'Reptilian', 'reptile'),
     ('Worker Ant', 'Ant', 'Insectoid', 'insect'),
     ('Ant Queen', 'AntQueen', 'Insectoid', 'insect'),
     ('Bee', 'Bee', 'Insectoid', 'insect'),
@@ -529,8 +551,8 @@ card_tribe_data = [
     ('Hydra', 'Hydra', 'Avian', 'bird'),
     ('Hydra', 'Hydra', 'Canine', 'canine'),
     ('Hydra', 'Hydra', 'Hooved', 'hooved'),
-    ('Hydra', 'Hydra', 'Reptilian', 'reptile'),
-    ('Hydra', 'Hydra', 'Insectoid', 'insect')
+    ('Hydra', 'Hydra', 'Insectoid', 'insect'),
+    ('Hydra', 'Hydra', 'Reptilian', 'reptile')
 ]
 for data in card_tribe_data:
     cursor.execute('INSERT INTO card_tribes (card_name, card_filename, tribe_name, tribe_filename) VALUES (?, ?, ?, ?)', data)
@@ -647,13 +669,8 @@ for data in card_sigil_data:
 
 # Card Flags
 card_flag_data = [
-    ('Worker Ant', 'Ant', 'ants'),
-    ('Ant Queen', 'Ant Queen', 'ants'),
-    ('squid_bell', 'SquidBell', 'bell'),
     ('squid_bell', 'SquidBell', 'squid'),
-    ('squid_cards', 'SquidCards', 'cardsinhand'),
     ('squid_cards', 'SquidCards', 'squid'),
-    ('squid_mirror', 'SquidMirror', 'mirror'),
     ('squid_mirror', 'SquidMirror', 'squid'),
     ('Gold Nugget', 'Gold Nugget', 'golden'),
     ('Gold Nugget', 'Gold Nugget', 'emission'),
@@ -662,9 +679,6 @@ card_flag_data = [
     ('Greater Smoke', 'Smoke_Improved', 'emission'),
     ('Starvation', 'Starvation', 'hide_power_and_health'),
     ('Starvation_Flight', 'Starvation', 'hide_power_and_health'),
-    ('Flying Ant', 'AntFlying', 'ants'),
-    ('Lammergeier', 'Lammergeier', 'bones'),
-    ('Red Hart', 'Red Hart', 'sacrificesthisturn'),
     ('Reginald', 'Reginald', 'death_card'),
     ('Louis', 'Louis', 'death_card'),
     ('Kaminski', 'Kaminski', 'death_card'),
@@ -672,6 +686,20 @@ card_flag_data = [
 ]
 for data in card_flag_data:
     cursor.execute('INSERT INTO card_flags (card_name, card_filename, flag_name) VALUES (?, ?, ?)', data)
+
+# Card Staticons
+card_staticon_data = [
+    ('Worker Ant', 'Ant', 'ants'),
+    ('Ant Queen', 'Ant Queen', 'ants'),
+    ('squid_bell', 'SquidBell', 'bell'),
+    ('squid_cards', 'SquidCards', 'cardsinhand'),
+    ('squid_mirror', 'SquidMirror', 'mirror'),
+    ('Flying Ant', 'AntFlying', 'ants'),
+    ('Lammergeier', 'Lammergeier', 'bones'),
+    ('Red Hart', 'Red Hart', 'sacrificesthisturn'),
+]
+for data in card_flag_data:
+    cursor.execute('INSERT INTO card_staticons (card_name, card_filename, staticon_name) VALUES (?, ?, ?)', data)
 
 # Card Decals
 card_decal_data = [
