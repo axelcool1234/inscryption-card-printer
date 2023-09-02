@@ -179,10 +179,10 @@ for data in note_data:
 # Tribes
 tribe_data = [
     ('Reptilian', 'reptile', None),
-    ('Insectoid', 'insect', None),
-    ('Hooved', 'hooved', None),
     ('Canine', 'canine', None),
-    ('Avian', 'bird', None)
+    ('Avian', 'bird', None),
+    ('Hooved', 'hooved', None),
+    ('Insectoid', 'insect', None)
 ]
 for data in tribe_data:
     cursor.execute('INSERT INTO tribes (name, filename, note_id) VALUES (?, ?, ?)', data)
