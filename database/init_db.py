@@ -60,8 +60,8 @@ cursor.execute('''CREATE TABLE cards (
     orangeMoxCost INTEGER DEFAULT 0,
     greenMoxCost INTEGER DEFAULT 0,
     blueMoxCost INTEGER DEFAULT 0,
-    rarity VARCHAR(10) CHECK (rarity IN ('common', 'rare', 'terrain', 'rareTerrain', 'spell')),
-    temple VARCHAR(10) CHECK (temple IN ('wizard', 'undead', 'tech', 'nature')),
+    rarity VARCHAR(10) CHECK (rarity IN ('common', 'rare', 'terrain', 'rareTerrain', 'spell')) NOT NULL,
+    temple VARCHAR(10) CHECK (temple IN ('wizard', 'undead', 'tech', 'nature')) NOT NULL,
     note_id INT,
     PRIMARY KEY (name, filename)
 );''')
@@ -510,6 +510,7 @@ card_tribe_data = [
     ('Sparrow', 'Sparrow', 'Avian', 'bird'),
     ('Stinkbug', 'Stinkbug_Talking', 'Insectoid', 'insect'),
     ('Turkey Vulture', 'Vulture', 'Avian', 'bird'),
+    ('Vertabrae', 'Vertabrae', 'Hooved', 'hooved'),
     ('Wolf', 'Wolf', 'Canine', 'canine'),
     ('Wolf Cub', 'WolfCub', 'Canine', 'canine'),
     ('Ring Worm', 'RingWorm', 'Insectoid', 'insect'),

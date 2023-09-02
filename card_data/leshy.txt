@@ -589,6 +589,7 @@ Name: Vertabrae
 Power: 0
 Health: 1
 Snelk4: True
+Tribe: Hooved
 
 Name: Turkey Vulture
 Portrait: Vulture
