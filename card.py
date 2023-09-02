@@ -107,10 +107,10 @@ class Card:
                 temple = ''
         return temple
     def get_terrain_layout(self):
-        if 'no_terrain_layout' in self.flags:
-            return 0
-        else:
+        if self.types['rarity'] == 'terrain' and 'no_terrain_layout' not in self.flags:
             return -70
+        else:
+            return 0
     def preserve_tribe_order(self, tribes):
         '''Tribe order is determined by the tribe table's priority in the database.'''
         self.cursor.execute('SELECT filename FROM tribes ORDER BY priority')
