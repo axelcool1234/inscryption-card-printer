@@ -20,10 +20,11 @@ class Geometry:
     def offset(self, x: Optional[int] = None, y: Optional[int] = None) -> 'Geometry':
         if x is None and y is None:
             self._offset = None
-        elif isinstance(x, int) and isinstance(y, int):
-            self._offset = {'x': x, 'y': y}
+        # elif isinstance(x, int) and isinstance(y, int):
         else:
-            raise ValueError(f"Invalid parameters for offset '{x},{y}'")
+            self._offset = {'x': x, 'y': y}
+        # else:
+        #     raise ValueError(f"Invalid parameters for offset '{x},{y}'")
         return self
 
     def flag(self, flag: str) -> 'Geometry':
@@ -45,7 +46,10 @@ class Geometry:
         return self
 
     def scale(self, x: int, y: Optional[int] = None) -> 'Geometry':
-        self._data = {'type': 'scale', 'x': x, 'y': y}
+        if y is not None:
+            self._data = {'type': 'scale', 'x': x, 'y': y}
+        else:
+            self._data = {'type': 'scale', 'x': x}
         return self
 
     def ratio(self, x: int, y: int) -> 'Geometry':

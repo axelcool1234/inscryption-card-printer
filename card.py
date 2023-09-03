@@ -4,6 +4,8 @@ import sqlite3
 from helpers import ImageMagickCommandBuilder
 IM = ImageMagickCommandBuilder
 
+# TODO: Red Emissions (Ijiraq needs its red eyes!), Ijiraq versions of cards, and proper portrait of Stinkbug_Talking.
+
 class Card:
     base = 'resource'
     originalCardHeight = 190 # px
@@ -83,7 +85,7 @@ class Card:
             tribes.append(row[0])
         return tribes
     def get_sigils_from_database(self):
-        self.cursor.execute('SELECT sigil_filename FROM card_sigils WHERE card_filename = ?', (self.filename,))
+        self.cursor.execute('SELECT sigil_filename FROM card_sigils WHERE card_filename = ? ORDER BY priority', (self.filename,))
         rows = self.cursor.fetchall()
         sigils = []
         for row in rows:
@@ -205,7 +207,7 @@ class Card:
         # Eyes
         dc.resource(f'{directory}/eyes/{attrs[1]}.png')
         dc.geometry(40, 46).composite()
-        if attrs[3]:
+        if attrs[3] == 'True':
             dc.parens(
                 IM().command('xc:black[17x17]').geometry(40, 46)).composite()
         im.parens(dc).gravity('Center').geometry(1, -15).composite()
@@ -213,7 +215,7 @@ class Card:
 
     def add_tribes(self, im):
         directory = f'{self.base}/tribes'
-        # TODO: Doesn't work with multi-tribe cards!
+        # TODO: Not sure how it works with cards with 2 to 3 tribes (but not all of them)
         tribePositions = [[-12, 3], [217, 5], [444, 7], [89, 451], [344, 452]]
         tribes = self.get_tribes_from_database()
         tribes = self.preserve_tribe_order(tribes)
@@ -234,10 +236,9 @@ class Card:
         directory = f'{self.base}/costs'
         # TODO: Will need to update this later to allow multi-cost cards!
         cost_path = None
-        for cost in self.costs:
-            if self.costs[cost]:
-                amount = self.costs[cost]
-                cost_path = f'{directory}/blood{amount}.png'
+        for cost, amount in self.costs.items():
+            if amount:
+                cost_path = f'{directory}/{cost}{amount}.png'
         if cost_path:
             im.parens(
                 IM(cost_path)
@@ -336,9 +337,9 @@ class Card:
     def add_squid_title(self, im):
         directory = f'{self.base}/misc'
         if 'squid' in self.flags:
-            squidTitle_path = f'{directory}/squid_title.png'
+            squid_title_path = f'{directory}/squid_title.png'
             im.parens(
-                IM(squidTitle_path)
+                IM(squid_title_path)
                 .interpolate('Nearest')
                 .filter('Point')
                 .resize(None, 152)
@@ -386,24 +387,26 @@ class Card:
         # TODO: Implement this!
         pass
     def apply_emission_effects(self, im):
-        directory = f'{self.base}/emissions'
-        if 'enhanced' in self.flags and 'golden' not in self.flags:
+        # TODO: Add red emission effects
+        temple = self.get_temple()
+        if temple == '':
+            temple = 'leshy'
+        directory = f'{self.base}/emissions/{temple}'
+        if 'emission' in self.flags and 'golden' not in self.flags:
             emission_path = f'{directory}/{self.filename}.png'
-            if emission_path and os.path.exists(emission_path):
-                im.parens(
-                    IM(emission_path)
-                    .interpolate('Nearest')
-                    .filter('Point')
-                    .resize(None, 605)
-                    .filter('Box')
-                    .gravity('NorthWest')
-                ).composite()
-
+            for i in [False, True]:
+                emission = IM(emission_path).command('-fill', 'rgb(161,247,186)', '-colorize', '100').resizeExt(lambda g: g.scale(self.scale * 100)).gravity('Center').geometry(3, -15 * self.scale)
+                if i == True:
+                    emission.command('-blur', '0x10')
+                im.parens(emission).composite()
         return im
 
     def add_golden_effect(self, im):
-        directory = f'{self.base}/emissions'
-        if 'enhanced' in self.flags and 'golden' in self.flags:
+        temple = self.get_temple()
+        if temple == '':
+            temple = 'leshy'
+        directory = f'{self.base}/emissions/{temple}'
+        if 'emission' in self.flags and 'golden' in self.flags:
             im.parens(
                 IM().command('-clone', '0', '-fill', 'rgb(255,128,0)', '-colorize', '75')
             ).geometry(0, 0).compose('HardLight').composite()
@@ -412,12 +415,11 @@ class Card:
             if emission_path and os.path.exists(emission_path):
                 im.parens(
                     IM(emission_path)
-                    .interpolate('Nearest')
-                    .filter('Point')
-                    .resize(None, 605)
                     .filter('Box')
-                    .gravity('NorthWest')
-                ).composite()
+                    .resizeExt(lambda g: g.scale(self.scale * 100))
+                    .gravity('Center')
+                    .geometry(0, -15 * self.scale)
+                ).compose('Overlay').composite()
 
         return im
 
@@ -425,15 +427,10 @@ class Card:
         directory = f'{self.base}/decals'
         decals = self.get_decals_from_database()
         if 'snelk' in decals:
-            longElkDecalPath = f'{directory}/snelk.png'
+            long_elk_decal_path = f'{directory}/snelk.png'
             im.parens(
-                IM(longElkDecalPath)
-                .interpolate('Nearest')
-                .filter('Point')
-                .resize(None, 1080)
-                .filter('Box')
-                .gravity('NorthWest')
-            ).composite()
+                IM(long_elk_decal_path)
+            ).resize(None, self.fullsizeCardHeight).gravity('Center').geometry(1, 0).composite()
         return im
     def add_decals(self, im):
         # TODO: Add a helper function that gives priority to certain decals. Add a column to decal table for priority!
