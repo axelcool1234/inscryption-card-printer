@@ -63,34 +63,34 @@ class Card:
             return None
 
     def get_flags_from_database(self):
-        self.cursor.execute('SELECT flag_name FROM card_flags WHERE card_name = ? AND card_filename = ?', (self.name, self.filename))
+        self.cursor.execute('SELECT flag_name FROM card_flags WHERE card_filename = ?', (self.filename,))
         rows = self.cursor.fetchall()
         flags = []
         for row in rows:
-            flags.append(row)
+            flags.append(row[0])
         return flags
 
     def get_death_card_from_database(self):
-        self.cursor.execute('SELECT head, eyes, mouth, lost_eye FROM death_cards WHERE card_name = ? AND card_filename = ?', (self.name, self.filename))
+        self.cursor.execute('SELECT head, eyes, mouth, lost_eye FROM death_cards WHERE card_filename = ?', (self.filename,))
         row = self.cursor.fetchone()
         return row
 
     def get_tribes_from_database(self):
-        self.cursor.execute('SELECT tribe_filename FROM card_tribes WHERE card_name = ? AND card_filename = ?', (self.name, self.filename))
+        self.cursor.execute('SELECT tribe_filename FROM card_tribes WHERE card_filename = ?', (self.filename,))
         rows = self.cursor.fetchall()
         tribes = []
         for row in rows:
             tribes.append(row[0])
         return tribes
     def get_sigils_from_database(self):
-        self.cursor.execute('SELECT sigil_filename FROM card_sigils WHERE card_name = ? AND card_filename = ?', (self.name, self.filename))
+        self.cursor.execute('SELECT sigil_filename FROM card_sigils WHERE card_filename = ?', (self.filename,))
         rows = self.cursor.fetchall()
         sigils = []
         for row in rows:
             sigils.append(row[0])
         return sigils
     def get_decals_from_database(self):
-        self.cursor.execute('SELECT decal_filename FROM card_decals WHERE card_name = ? AND card_filename = ?', (self.name, self.filename))
+        self.cursor.execute('SELECT decal_filename FROM card_decals WHERE card_filename = ?', (self.filename,))
         rows = self.cursor.fetchall()
         decals = []
         for row in rows:
@@ -171,12 +171,12 @@ class Card:
         return im
 
     def add_card_portrait(self, im):
-        if self.filename != 'Child':
-            if 'deathcard' not in self.flags:
+        if 'no_portrait' not in self.flags:
+            if 'death_card' not in self.flags:
                 im = self.add_portrait(im)
             else:
                 im = self.add_death_card(im)
-            return im
+        return im
 
     def add_portrait(self, im):
         temple = self.get_temple()
@@ -194,7 +194,7 @@ class Card:
 
         attrs = self.get_death_card_from_database()
         # Base
-        dc = IM(f'{directory}/base')
+        dc = IM(f'{directory}/base.png')
         dc.gravity('NorthWest')
         # Head
         dc.resource(f'{directory}/heads/{attrs[0]}.png')
@@ -271,7 +271,7 @@ class Card:
 
     def add_special_stat_icons(self, im):
         directory = f'{self.base}/staticons'
-        self.cursor.execute('SELECT staticon_name FROM card_staticons WHERE card_name = ? AND card_filename = ?', (self.name, self.filename))
+        self.cursor.execute('SELECT staticon_name FROM card_staticons WHERE card_filename = ?', (self.filename,))
         row = self.cursor.fetchone()
         if row:
             im.parens(
