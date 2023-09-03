@@ -1,6 +1,7 @@
 import subprocess
 import os
-from helpers import Geometry, ImageMagickCommandBuilder, Fds
+import sqlite3
+from helpers import ImageMagickCommandBuilder
 IM = ImageMagickCommandBuilder
 
 class Card:
@@ -170,11 +171,12 @@ class Card:
         return im
 
     def add_card_portrait(self, im):
-        if 'deathcard' not in self.flags:
-            im = self.add_portrait(im)
-        else:
-            im = self.add_death_card(im)
-        return im
+        if self.filename != 'Child':
+            if 'deathcard' not in self.flags:
+                im = self.add_portrait(im)
+            else:
+                im = self.add_death_card(im)
+            return im
 
     def add_portrait(self, im):
         temple = self.get_temple()
@@ -270,10 +272,10 @@ class Card:
     def add_special_stat_icons(self, im):
         directory = f'{self.base}/staticons'
         self.cursor.execute('SELECT staticon_name FROM card_staticons WHERE card_name = ? AND card_filename = ?', (self.name, self.filename))
-        row = cursors.fetchone()
+        row = self.cursor.fetchone()
         if row:
             im.parens(
-                IM(f'{directory}/{row}')
+                IM(f'{directory}/{row[0]}.png')
                 .interpolate('Nearest')
                 .filter('Point')
                 .resize(245)
@@ -452,30 +454,17 @@ class Card:
 
     def generate_image_buffer(self, im):
         return buffer_from_command_builder(im)
-#
-#     # ... (other class methods)
-#
-#
+
 def buffer_from_command_builder(im, input_data=None, filetype='PNG'):
     command_args = ['magick'] + im.parts() + [f'{filetype}:-']
     command = ' '.join(command_args)
+    print(command)
     process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     stdout, stderr = process.communicate(input=input_data)
 
     if process.returncode != 0:
-        raise RuntimeError(f"ImageMagick Error: {stderr.decode('utf-8')}")
+        print(f"ImageMagick Error: {stderr.decode('utf-8')}")
+        #raise RuntimeError(f"ImageMagick Error: {stderr.decode('utf-8')}")
 
     return stdout
-
-# Example usage:
-import sqlite3
-conn = sqlite3.connect('database/inscryption.db')
-cursors = conn.cursor()
-row = ('Amalgam', 'Amalgam', 3, 3, 2, 0, 0, 0, 0, 0, 'rare', 'nature', None)
-card = Card(*row)
-card_image_buffer = card.generate_card_image()
-
-# Example: Save the image to a file
-with open('output_image.png', 'wb') as image_file:
-    image_file.write(card_image_buffer)

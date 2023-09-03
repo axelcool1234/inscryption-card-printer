@@ -171,7 +171,7 @@ class ImageMagickCommandBuilder:
         return self
 
     def label(self, input: Union[str, int]) -> 'ImageMagickCommandBuilder':
-        self._commands.append(f"label:{self._escape(input)}")
+        self._commands.append(f"label:\"{self._escape(input)}\"")
         return self
 
     def font(self, font: str) -> 'ImageMagickCommandBuilder':

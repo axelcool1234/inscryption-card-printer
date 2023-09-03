@@ -10,7 +10,14 @@ def generate(cursor):
     # Generating all cards
     for row in rows:
         card = Card(*row)
-        print(card.name)
+        card_image_buffer = card.generate_card_image()
+        if card.filename is None:
+            name = card.name
+        else:
+            name = card.filename
+        with open(f'output/{name}.png', 'wb') as image_file:
+            image_file.write(card_image_buffer)
+
 
 if __name__ == '__main__':
     generate()
