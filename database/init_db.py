@@ -18,6 +18,7 @@ cursor.execute('DROP TABLE IF EXISTS card_flags;')
 cursor.execute('DROP TABLE IF EXISTS card_decals;')
 cursor.execute('DROP TABLE IF EXISTS death_cards;')
 cursor.execute('DROP TABLE IF EXISTS card_staticons;')
+cursor.execute('DROP TABLE IF EXISTS card_categories;')
 
 # CREATE TABLE statements
 cursor.execute('''CREATE TABLE flags (
@@ -120,6 +121,11 @@ cursor.execute('''CREATE TABLE card_decals (
     PRIMARY KEY (card_filename, decal_filename),
     FOREIGN KEY (card_filename) REFERENCES cards (filename),
     FOREIGN KEY (decal_filename) REFERENCES flags (filename)
+);''')
+
+cursor.execute('''CREATE TABLE card_categories (
+    card_filename VARCHAR(45) PRIMARY KEY,
+    category VARCHAR(45)
 );''')
 
 
@@ -461,6 +467,140 @@ for data in mox_card_data:
 
 # Multi-Cost Cards
 # Will implement when needed
+
+
+# Card Categories
+card_category_data = [
+    # Base game cards
+    ('Adder', 'base'),
+    ('Amalgam', 'base'),
+    ('Ant', 'base'),
+    ('AntQueen', 'base'),
+    ('Beaver', 'base'),
+    ('Bee', 'base'),
+    ('Beehive', 'base'),
+    ('Bloodhound', 'base'),
+    ('Boulder', 'base'),
+    ('Bullfrog', 'base'),
+    ('CagedWolf', 'base'),
+    ('Cat', 'base'),
+    ('UndeadCat', 'base'),
+    ('Daus', 'base'),
+    ('Elk', 'base'),
+    ('ElkFawn', 'base'),
+    ('FieldMice', 'base'),
+    ('Geck', 'base'),
+    ('Goat', 'base'),
+    ('Goat_Sexy', 'base'),
+    ('Grizzly', 'base'),
+    ('JerseyDevil', 'base'),
+    ('JerseyDevil_Flying', 'base'),
+    ('Kingfisher', 'base'),
+    ('Magpie', 'base'),
+    ('Mantis', 'base'),
+    ('MantisGod', 'base'),
+    ('Mole', 'base'),
+    ('MoleMan', 'base'),
+    ('MoleSeaman', 'base'),
+    ('Moose', 'base'),
+    ('Mothman_1', 'base'),
+    ('Mothman_2', 'base'),
+    ('Mothman_3', 'base'),
+    ('Mule', 'base'),
+    ('Otter', 'base'),
+    ('Ouroboros', 'base'),
+    ('PackRat', 'base'),
+    ('Porcupine', 'base'),
+    ('Pronghorn', 'base'),
+    ('Rabbit', 'base'),
+    ('RatKing', 'base'),
+    ('Raven', 'base'),
+    ('RavenEgg', 'base'),
+    ('Shark', 'base'),
+    ('Shark_Bloodless', 'base'),
+    ('Skink', 'base'),
+    ('Skunk', 'base'),
+    ('Turtle', 'base'),
+    ('Sparrow', 'base'),
+    ('SquidBell', 'base'),
+    ('SquidCards', 'base'),
+    ('SquidMirror', 'base'),
+    ('Squirrel', 'base'),
+    ('Stoat_Talking', 'base'),
+    ('Wolf_Talking', 'base'),
+    ('Skink_Tail', 'base'),
+    ('Bird_Tail', 'base'),
+    ('Canine_Tail', 'base'),
+    ('Insect_Tail', 'base'),
+    ('Urayuli', 'base'),
+    ('Vertebrae', 'base'),
+    ('Warren', 'base'),
+    ('Wolf', 'base'),
+    ('WolfCub', 'base'),
+    ('BaitBucket', 'base'),
+    ('BrokenEgg', 'base'),
+    ('Dam', 'base'),
+    ('DausBell', 'base'),
+    ('GoldNugget', 'base'),
+    ('Pelt_Golden', 'base'),
+    ('Pelt_Hare', 'base'),
+    ('Pelt_Wolf', 'base'),
+    ('RingWorm', 'base'),
+    ('Stoat', 'base'),
+    ('Smoke', 'base'),
+    ('Smoke_Improved', 'base'),
+    ('StarvingMan', 'base'),
+    ('StarvingMan_Flight', 'base'),
+    ('Trap', 'base'),
+    ('TrapFrog', 'base'),
+    ('Frozen_Opossum', 'base'),
+    ('Tree_SnowCovered', 'base'),
+    ('Tree', 'base'),
+    ('Child', 'base'),
+    ('Stump', 'base'),
+    ('AquaSquirrel', 'base'),
+    ('SkeletonPirate', 'base'),
+    ('SkeletonParrot', 'base'),
+    ('Bull', 'base'),
+    ('Cuckoo', 'base'),
+    ('Ijiraq', 'base'),
+    ('AntFlying', 'base'),
+    ('MudTurtle_Shelled', 'base'),
+    ('MudTurtle', 'base'),
+    ('DireWolfCub', 'base'),
+    ('DireWolf', 'base'),
+    ('Raccoon', 'base'),
+    ('Lammergeier', 'base'),
+    ('RedHart', 'base'),
+    ('Tadpole', 'base'),
+    ('Lice', 'base'),
+    ('Hodag', 'base'),
+    ('Kraken', 'base'),
+    ('Louis', 'base'),
+    ('Kaycee', 'base'),
+    ('Alpha', 'base'),
+    ('Amoeba', 'base'),
+    ('Bat', 'base'),
+    ('Cockroach', 'base'),
+    ('Coyote', 'base'),
+    ('Maggots', 'base'),
+    ('Opossum', 'base'),
+    ('Rattler', 'base'),
+    ('LongElk', 'base'),
+    ('Stinkbug_Talking', 'base'),
+    ('Vulture', 'base'),
+    ('MealWorm', 'base'),
+    ('Wolverine', 'base'),
+    ('HydraEgg', 'base'),
+    ('Hydra', 'base'),
+    ('Reginald', 'base'),
+    ('Kaminski', 'base')
+
+    # Custom
+]
+for data in card_category_data:
+    cursor.execute('INSERT INTO card_categories (card_filename, category) VALUES (?, ?)', data)
+
 
 #Death Cards
 death_card_data = [
