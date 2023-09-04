@@ -8,9 +8,9 @@ IM = ImageMagickCommandBuilder
 
 class Card:
     base = 'resource'
-    originalCardHeight = 190 # px
-    fullsizeCardHeight = 1050 # px
-    scale = fullsizeCardHeight / originalCardHeight
+    original_card_height = 190 # px
+    fullsize_card_height = 1050 # px
+    scale = fullsize_card_height / original_card_height
 
     def __init__(self, name, filename,
                  power, health,
@@ -129,7 +129,7 @@ class Card:
         im = self.add_card_background(im)
         im = self.add_card_portrait(im)
         # Resize
-        im.resize(None, self.fullsizeCardHeight) # 1050 pixels @ 300 dpi = 3.5 inches
+        im.resize(None, self.fullsize_card_height) # 1050 pixels @ 300 dpi = 3.5 inches
         # Set default gravity
         im.gravity('NorthWest')
         im = self.add_tribes(im)
@@ -139,10 +139,12 @@ class Card:
         im = self.add_sigils(im)
         im = self.add_squid_title(im)
         im = self.add_card_name(im)
+        im = self.add_long_elk_decal(im)
+        im = self.add_card_border(im)
+        im = self.add_card_bleed(im)
         im = self.apply_emission_effects(im)
         im = self.add_decals(im)
         im = self.add_golden_effect(im)
-        im = self.add_long_elk_decal(im)
         return self.generate_image_buffer(im)
 
     def initialize_image_builder(self):
@@ -157,16 +159,7 @@ class Card:
 
     def add_card_background(self, im):
         directory = f'{self.base}/cards'
-
-        match self.types['temple']:
-            case 'wizard':
-                temple = 'mag'
-            case 'undead':
-                temple = 'grim'
-            case 'tech':
-                temple = 'p03'
-            case _:
-                temple = ''
+        temple = self.get_temple()
         rarity = self.types['rarity']
         background_path = f'{directory}/{temple}{rarity}.png'
         im.resource(background_path)
@@ -383,9 +376,43 @@ class Card:
             ).gravity('North').geometry(position['x'], position['y']).composite().font(f'{directory}/HEAVYWEIGHT.otf')
 
         return im
+    def add_long_elk_decal(self, im):
+        directory = f'{self.base}/decals'
+        decals = self.get_decals_from_database()
+        if 'snelk' in decals:
+            long_elk_decal_path = f'{directory}/snelk.png'
+            im.parens(
+                IM(long_elk_decal_path)
+            ).resize(None, self.fullsize_card_height).gravity('Center').geometry(1, 0).composite()
+        return im
     def add_card_border(self, im):
-        # TODO: Implement this!
-        pass
+        directory = f'{self.base}/cardbackgrounds'
+        temple = self.get_temple()
+        rarity = self.types['rarity']
+        background_path = f'{directory}/{temple}{rarity}.png'
+        if 'card_border' in self.flags:
+            background = IM(background_path).resize(813, 1172)
+            im.gravity('Center')\
+                .extent(813, 1172)\
+                .parens(background)\
+                .compose('DstOver')\
+                .composite()\
+                .compose('SrcOver')
+        return im
+    def add_card_bleed(self, im):
+        directory = f'{self.base}/cardbackgrounds'
+        temple = self.get_temple()
+        rarity = self.types['rarity']
+        background_path = f'{directory}/{temple}{rarity}_bleed.png'
+        if 'card_bleed' in self.flags:
+            background = IM(background_path).resize(891, None)
+            im.gravity('Center')\
+                .extent(853, 1178)\
+                .parens(background)\
+                .compose('DstOver')\
+                .composite()\
+                .compose('SrcOver')
+        return im
     def apply_emission_effects(self, im):
         # TODO: Add red emission effects
         temple = self.get_temple()
@@ -422,16 +449,6 @@ class Card:
                 ).compose('Overlay').composite()
 
         return im
-
-    def add_long_elk_decal(self, im):
-        directory = f'{self.base}/decals'
-        decals = self.get_decals_from_database()
-        if 'snelk' in decals:
-            long_elk_decal_path = f'{directory}/snelk.png'
-            im.parens(
-                IM(long_elk_decal_path)
-            ).resize(None, self.fullsizeCardHeight).gravity('Center').geometry(1, 0).composite()
-        return im
     def add_decals(self, im):
         # TODO: Add a helper function that gives priority to certain decals. Add a column to decal table for priority!
         directory = f'{self.base}/decals'
@@ -443,7 +460,7 @@ class Card:
                     im.parens(
                         IM(decal_path)
                         .filter('Box')
-                        .resize(None, self.fullsizeCardHeight)
+                        .resize(None, self.fullsize_card_height)
                     ).gravity('Center').composite()
         return im
 

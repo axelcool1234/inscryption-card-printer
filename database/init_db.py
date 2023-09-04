@@ -146,6 +146,8 @@ flag_data = [
     ('hide_power_and_health',),
     ('death_card',),
     ('no_portrait',),
+    ('card_border',),
+    ('card_bleed',)
 ]
 for data in flag_data:
     cursor.execute('INSERT INTO flags (name) VALUES (?)', data)
