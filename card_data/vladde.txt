@@ -1,8 +1,0 @@
-# My portrait is a bit off (eyes aren't as dark)
-Name: Stinkbug
-Portrait: Stinkbug_Talking
-Power: 1
-Health: 2
-Cost: 2 Bones
-Sigil: Stinky
-Tribe: Insect
