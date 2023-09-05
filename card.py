@@ -72,9 +72,12 @@ class Card:
             flags.append(row[0])
         return flags
 
-    def get_death_card_from_database(self):
-        self.cursor.execute('SELECT head, eyes, mouth, lost_eye FROM death_cards WHERE card_filename = ?', (self.filename,))
-        row = self.cursor.fetchone()
+    def get_base_death_card_from_database(self):
+        if 'base_death_card' in self.flags:
+            self.cursor.execute('SELECT ears, head, eyes, mouth, body, lost_eye FROM death_cards WHERE card_filename = ?', (self.filename,))
+            row = self.cursor.fetchone()
+        else:
+            return None
         return row
 
     def get_tribes_from_database(self):
@@ -167,40 +170,37 @@ class Card:
 
     def add_card_portrait(self, im):
         if 'no_portrait' not in self.flags:
-            if 'death_card' not in self.flags:
-                im = self.add_portrait(im)
+            if 'base_death_card' in self.flags:
+                im = self.add_base_death_card(im)
             else:
-                im = self.add_death_card(im)
+                im = self.add_portrait(im)
         return im
 
     def add_portrait(self, im):
-        temple = self.get_temple()
-        if temple == '':
-            temple = 'leshy'
-        directory = f'{self.base}/portraits/{temple}'
+        directory = f'{self.base}/portraits'
         im.resource(f'{directory}/{self.filename}.png')
         im.gravity('Center')
         im.geometry(1, -15)
         im.composite()
         return im
 
-    def add_death_card(self, im):
-        directory = f'{self.base}/deathcards'
-
-        attrs = self.get_death_card_from_database()
-        # Base
-        dc = IM(f'{directory}/base.png')
+    def add_base_death_card(self, im):
+        directory = f'{self.base}/deathcards/base'
+        # ears, head, eyes, mouth, body, lost_eye
+        attrs = self.get_base_death_card_from_database()
+        # Body
+        dc = IM(f'{directory}/{attrs[4]}.png')
         dc.gravity('NorthWest')
         # Head
-        dc.resource(f'{directory}/heads/{attrs[0]}.png')
+        dc.resource(f'{directory}/heads/{attrs[1]}.png')
         dc.composite()
         # Mouth
-        dc.resource(f'{directory}/mouth/{attrs[2]}.png')
+        dc.resource(f'{directory}/mouth/{attrs[3]}.png')
         dc.geometry(40, 68).composite()
         # Eyes
-        dc.resource(f'{directory}/eyes/{attrs[1]}.png')
+        dc.resource(f'{directory}/eyes/{attrs[2]}.png')
         dc.geometry(40, 46).composite()
-        if attrs[3] == 'True':
+        if attrs[5] == 'True':
             dc.parens(
                 IM().command('xc:black[17x17]').geometry(40, 46)).composite()
         im.parens(dc).gravity('Center').geometry(1, -15).composite()
@@ -415,10 +415,7 @@ class Card:
         return im
     def apply_emission_effects(self, im):
         # TODO: Add red emission effects
-        temple = self.get_temple()
-        if temple == '':
-            temple = 'leshy'
-        directory = f'{self.base}/emissions/{temple}'
+        directory = f'{self.base}/emissions'
         if 'emission' in self.flags and 'golden' not in self.flags:
             emission_path = f'{directory}/{self.filename}.png'
             for i in [False, True]:
@@ -429,10 +426,7 @@ class Card:
         return im
 
     def add_golden_effect(self, im):
-        temple = self.get_temple()
-        if temple == '':
-            temple = 'leshy'
-        directory = f'{self.base}/emissions/{temple}'
+        directory = f'{self.base}/emissions'
         if 'emission' in self.flags and 'golden' in self.flags:
             im.parens(
                 IM().command('-clone', '0', '-fill', 'rgb(255,128,0)', '-colorize', '75')

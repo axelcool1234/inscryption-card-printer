@@ -74,9 +74,11 @@ cursor.execute('''CREATE TABLE cards (
 
 cursor.execute('''CREATE TABLE death_cards(
     card_filename VARCHAR(45) PRIMARY KEY,
-    head VARCHAR(10) NOT NULL,
-    eyes INT NOT NULL,
-    mouth INT NOT NULL,
+    ears VARCHAR(10),
+    head VARCHAR(10),
+    eyes VARCHAR(10),
+    mouth VARCHAR(10),
+    body VARCHAR(10),
     lost_eye VARCHAR(10) CHECK (lost_eye IN ('True', 'False')),
     FOREIGN KEY (card_filename) REFERENCES card (filename)
 );''')
@@ -151,7 +153,7 @@ flag_data = [
     ('emission',),
     ('red_emission',),
     ('hide_power_and_health',),
-    ('death_card',),
+    ('base_death_card',),
     ('no_portrait',),
     ('card_border',),
     ('card_bleed',)
@@ -161,20 +163,20 @@ for data in flag_data:
 
 # Decals
 decal_data = [
-    ('Blood', 'blood1'),
-    ('Blood', 'blood2'),
-    ('Blood', 'blood3'),
-    ('Blood', 'blood4'),
-    ('Paint', 'paint1'),
-    ('Paint', 'paint2'),
-    ('Paint', 'paint3'),
+    ('Blood', 'blood_1'),
+    ('Blood', 'blood_2'),
+    ('Blood', 'blood_3'),
+    ('Blood', 'blood_4'),
+    ('Paint', 'paint_1'),
+    ('Paint', 'paint_2'),
+    ('Paint', 'paint_3'),
     ('Long Elk', 'snelk'),
-    ('Vertebrae', 'snelk1'),
-    ('Vertebrae', 'snelk2'),
-    ('Vertebrae', 'snelk3'),
-    ('Vertebrae', 'snelk4'),
-    ('Vertebrae', 'snelk5'),
-    ('Vertebrae', 'snelk6'),
+    ('Vertebrae', 'snelk_1'),
+    ('Vertebrae', 'snelk_2'),
+    ('Vertebrae', 'snelk_3'),
+    ('Vertebrae', 'snelk_4'),
+    ('Vertebrae', 'snelk_5'),
+    ('Vertebrae', 'snelk_6'),
     ('Smoke', 'smoke'),
     ('Hungry Child', 'child'),
     ('Fungus', 'fungus'),
@@ -604,13 +606,13 @@ for data in card_category_data:
 
 #Death Cards
 death_card_data = [
-    ('Reginald', 'settlerman', 3, 6, 'False' ),
-    ('Louis', 'chief', 1, 3, 'False' ),
-    ('Kaminski', 'settlerwoman', 2, 4, 'False' ),
-    ('Kaycee', 'wildling', 5, 2, 'False')
+    ('Reginald', None, 'settlerman', 3, 6, 'base', 'False' ),
+    ('Louis', None, 'chief', 1, 3, 'base', 'False' ),
+    ('Kaminski', None, 'settlerwoman', 2, 4, 'base', 'False' ),
+    ('Kaycee', None, 'wildling', 5, 2, 'base', 'False')
 ]
 for data in death_card_data:
-    cursor.execute('INSERT INTO death_cards (card_filename, head, eyes, mouth, lost_eye) VALUES (?, ?, ?, ?, ?)', data)
+    cursor.execute('INSERT INTO death_cards (card_filename, ears, head, eyes, mouth, body, lost_eye) VALUES (?, ?, ?, ?, ?, ?, ?)', data)
 
 # Card Tribes
 card_tribe_data = [
@@ -812,10 +814,10 @@ card_flag_data = [
     ('Smoke_Improved', 'emission'),
     ('StarvingMan', 'hide_power_and_health'),
     ('StarvingMan_Flight', 'hide_power_and_health'),
-    ('Reginald', 'death_card'),
-    ('Louis', 'death_card'),
-    ('Kaminski', 'death_card'),
-    ('Kaycee', 'death_card'),
+    ('Reginald', 'base_death_card'),
+    ('Louis', 'base_death_card'),
+    ('Kaminski', 'base_death_card'),
+    ('Kaycee', 'base_death_card'),
     ('Vertebrae', 'no_portrait'),
     ('LongElk', 'no_portrait'),
     ('Child', 'no_portrait'),
