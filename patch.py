@@ -3,10 +3,11 @@ from helpers import ImageMagickCommandBuilder
 IM = ImageMagickCommandBuilder
 
 class Patch:
-    base = 'resource'
+
     scale = 1
 
-    def __init__(self, filename, type):
+    def __init__(self, base, filename, type):
+        self.base = base + 'resource'
         self.filename = filename
         if type == 'patch':
             self.original_patch_height = 85 # px

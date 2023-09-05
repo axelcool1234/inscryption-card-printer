@@ -1,21 +1,21 @@
 import subprocess
 import os
-import sqlite3
 from helpers import ImageMagickCommandBuilder
 IM = ImageMagickCommandBuilder
 
 # TODO: Red Emissions (Ijiraq needs its red eyes!), Ijiraq versions of cards, and proper portrait of Stinkbug_Talking.
 
 class Card:
-    base = 'resource'
     original_card_height = 190 # px
     fullsize_card_height = 1050 # px
     scale = fullsize_card_height / original_card_height
 
-    def __init__(self, name, filename,
+    def __init__(self, cursor, base, name, filename,
                  power, health,
                  bloodCost, boneCost, energyCost, orangeMoxCost, greenMoxCost, blueMoxCost,
                  rarity, temple, note_id):
+        self.base = base + 'resource'
+
         self.name = name
         self.filename = filename
         self.stats = {
@@ -35,8 +35,7 @@ class Card:
             'temple': temple
         }
         # Connect to database
-        self.conn = sqlite3.connect('database/inscryption.db')
-        self.cursor = self.conn.cursor()
+        self.cursor = cursor
         # Get notes
         if note_id is None:
             self.notes = None
@@ -47,8 +46,6 @@ class Card:
         # Get terrain layout offset
         self.terrainLayoutXoffset = self.get_terrain_layout()
 
-    def disconnect(self):
-        self.conn.close()
     def get_notes_from_database(self, note_id):
         # SELECT query and fetch to retrieve notes based on note_id
         self.cursor.execute('SELECT description, mechanics, gmNotes FROM notes WHERE id = ?', (note_id,))

@@ -873,13 +873,13 @@ for data in card_staticon_data:
 
 # Card Decals
 card_decal_data = [
-    ('BaitBucket', 'blood2'),
-    ('Shark', 'blood2'),
+    ('BaitBucket', 'blood_2'),
+    ('Shark', 'blood_2'),
     ('Smoke', 'smoke'),
     ('Smoke_Improved', 'smoke'),
     ('Child', 'child'),
     ('LongElk', 'snelk'),
-    ('Vertebrae', 'snelk4'),
+    ('Vertebrae', 'snelk_4'),
 ]
 for data in card_decal_data:
     cursor.execute('INSERT INTO card_decals (card_filename, decal_filename) VALUES (?, ?)', data)

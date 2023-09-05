@@ -12,7 +12,7 @@ def generate_front_cards(cursor):
     for i in range(3):
         # Generating all cards
         for row in rows:
-            card = Card(*row)
+            card = Card(cursor, './', *row)
             if i == 1:
                 card.flags.append('card_border')
                 card_type = 'border'
@@ -36,7 +36,7 @@ def generate_front_cards(cursor):
 
             # Generating the card image
             card_image_buffer = card.generate_card_image()
-            card.disconnect()
+            #card.disconnect()
 
             with open(os.path.join(directory_path, f'{card.filename}.png'), 'wb') as image_file:
                 image_file.write(card_image_buffer)
@@ -48,7 +48,7 @@ def generate_patches(cursor):
     rows = cursor.fetchall()
 
     for row in rows:
-        patch = Patch(row[1], 'patch')
+        patch = Patch('./', row[1], 'patch')
 
         # Create the full directory path for the sigil image
         source_file_path = f'resource/sigils/{patch.filename}.png'
