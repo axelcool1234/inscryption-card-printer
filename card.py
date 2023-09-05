@@ -9,46 +9,48 @@ class Card:
     original_card_height = 190 # px
     fullsize_card_height = 1050 # px
     scale = fullsize_card_height / original_card_height
-
-    def __init__(self, cursor, base, name, filename,
-                 power, health,
-                 bloodCost, boneCost, energyCost, orangeMoxCost, greenMoxCost, blueMoxCost,
-                 rarity, temple, note_id):
+    def __init__(self, cursor, base, card_data, tribe_data, sigil_data, flag_data,
+                 decal_data, deathcard_data, staticon_data, category_data):
+        # Establish base directory
         self.base = base + 'resource'
-
-        self.name = name
-        self.filename = filename
-        self.stats = {
-            'power': power,
-            'health': health
-        }
-        self.costs = {
-            'blood': bloodCost,
-            'bone': boneCost,
-            'energy': energyCost,
-            'orange': orangeMoxCost,
-            'green': greenMoxCost,
-            'blue': blueMoxCost
-        }
-        self.types = {
-            'rarity': rarity,
-            'temple': temple
-        }
-        # Connect to database
+        # Gain access to database
         self.cursor = cursor
+
+        # Establish card data
+        for key, value in card_data.items():
+            setattr(self, key, value)
+
+        # Establish tribe data
+        self.tribes = self.establish_attribute_data(tribe_data, 'tribe')
+        self.tribes = self.preserve_tribe_order()
+        # Establish sigil data
+        self.sigils = self.establish_attribute_data(sigil_data, 'sigil')
+        # Establish flag data
+        self.flags = self.establish_attribute_data(flag_data, 'flag')
+        # Establish decal data
+        self.decals = self.establish_attribute_data(decal_data, 'decal')
+        # Establish deathcard data
+        self.deathcard = deathcard_data
+        # Establish staticon data
+        self.staticon = self.establish_attribute_data(staticon_data, 'staticon')
+        # Establish category data
+        self.category = category_data
         # Get notes
-        if note_id is None:
+        if self.note_id is None:
             self.notes = None
         else:
-            self.notes = self.get_notes_from_database(note_id)
-        # Get flags
-        self.flags = self.get_flags_from_database()
+            self.notes = self.get_notes_from_database()
         # Get terrain layout offset
-        self.terrainLayoutXoffset = self.get_terrain_layout()
+        self.terrain_layout_x_offset = self.get_terrain_layout()
 
-    def get_notes_from_database(self, note_id):
+    def establish_attribute_data(self, data, data_type):
+        attributes = []
+        for row in data:
+            attributes.append(row[f'{data_type}_filename'])
+        return attributes
+    def get_notes_from_database(self):
         # SELECT query and fetch to retrieve notes based on note_id
-        self.cursor.execute('SELECT description, mechanics, gmNotes FROM notes WHERE id = ?', (note_id,))
+        self.cursor.execute('SELECT description, mechanics, gmNotes FROM notes WHERE id = ?', (self.note_id,))
         row = self.cursor.fetchone()
         # Assign notes to card
         if row:
@@ -60,67 +62,18 @@ class Card:
             }
         else:
             return None
-
-    def get_flags_from_database(self):
-        self.cursor.execute('SELECT flag_name FROM card_flags WHERE card_filename = ?', (self.filename,))
-        rows = self.cursor.fetchall()
-        flags = []
-        for row in rows:
-            flags.append(row[0])
-        return flags
-
-    def get_base_death_card_from_database(self):
-        if 'base_death_card' in self.flags:
-            self.cursor.execute('SELECT ears, head, eyes, mouth, body, lost_eye FROM death_cards WHERE card_filename = ?', (self.filename,))
-            row = self.cursor.fetchone()
-        else:
-            return None
-        return row
-
-    def get_tribes_from_database(self):
-        self.cursor.execute('SELECT tribe_filename FROM card_tribes WHERE card_filename = ?', (self.filename,))
-        rows = self.cursor.fetchall()
-        tribes = []
-        for row in rows:
-            tribes.append(row[0])
-        return tribes
-    def get_sigils_from_database(self):
-        self.cursor.execute('SELECT sigil_filename FROM card_sigils WHERE card_filename = ? ORDER BY priority', (self.filename,))
-        rows = self.cursor.fetchall()
-        sigils = []
-        for row in rows:
-            sigils.append(row[0])
-        return sigils
-    def get_decals_from_database(self):
-        self.cursor.execute('SELECT decal_filename FROM card_decals WHERE card_filename = ?', (self.filename,))
-        rows = self.cursor.fetchall()
-        decals = []
-        for row in rows:
-            decals.append(row[0])
-        return decals
-    def get_temple(self):
-        match self.types['temple']:
-            case 'wizard':
-                temple = 'mag'
-            case 'undead':
-                temple = 'grim'
-            case 'tech':
-                temple = 'p03'
-            case _:
-                temple = ''
-        return temple
     def get_terrain_layout(self):
-        if self.types['rarity'] == 'terrain' and 'no_terrain_layout' not in self.flags:
+        if self.rarity == 'terrain' and 'no_terrain_layout' not in self.flags:
             return -70
         else:
             return 0
-    def preserve_tribe_order(self, tribes):
+    def preserve_tribe_order(self):
         '''Tribe order is determined by the tribe table's priority in the database.'''
         self.cursor.execute('SELECT filename FROM tribes ORDER BY priority')
         rows = self.cursor.fetchall()
         ordered_tribes = []
         for row in rows:
-            if row[0] in tribes:
+            if row[0] in self.tribes:
                 ordered_tribes.append(row[0])
         return ordered_tribes
 
@@ -159,9 +112,7 @@ class Card:
 
     def add_card_background(self, im):
         directory = f'{self.base}/cards'
-        temple = self.get_temple()
-        rarity = self.types['rarity']
-        background_path = f'{directory}/{temple}{rarity}.png'
+        background_path = f'{directory}/{self.temple}_{self.rarity}.png'
         im.resource(background_path)
         return im
 
@@ -183,21 +134,19 @@ class Card:
 
     def add_base_death_card(self, im):
         directory = f'{self.base}/deathcards/base'
-        # ears, head, eyes, mouth, body, lost_eye
-        attrs = self.get_base_death_card_from_database()
         # Body
-        dc = IM(f'{directory}/{attrs[4]}.png')
+        dc = IM(f'{directory}/{self.deathcard["body"]}.png')
         dc.gravity('NorthWest')
         # Head
-        dc.resource(f'{directory}/heads/{attrs[1]}.png')
+        dc.resource(f'{directory}/heads/{self.deathcard["head"]}.png')
         dc.composite()
         # Mouth
-        dc.resource(f'{directory}/mouth/{attrs[3]}.png')
+        dc.resource(f'{directory}/mouth/{self.deathcard["mouth"]}.png')
         dc.geometry(40, 68).composite()
         # Eyes
-        dc.resource(f'{directory}/eyes/{attrs[2]}.png')
+        dc.resource(f'{directory}/eyes/{self.deathcard["eyes"]}.png')
         dc.geometry(40, 46).composite()
-        if attrs[5] == 'True':
+        if self.deathcard["lost_eye"] == 'True':
             dc.parens(
                 IM().command('xc:black[17x17]').geometry(40, 46)).composite()
         im.parens(dc).gravity('Center').geometry(1, -15).composite()
@@ -207,9 +156,7 @@ class Card:
         directory = f'{self.base}/tribes'
         # TODO: Not sure how it works with cards with 2 to 3 tribes (but not all of them)
         tribePositions = [[-12, 3], [217, 5], [444, 7], [89, 451], [344, 452]]
-        tribes = self.get_tribes_from_database()
-        tribes = self.preserve_tribe_order(tribes)
-        for i, tribe in enumerate(tribes):
+        for i, tribe in enumerate(self.tribes):
             tribeLocation = f'{directory}/{tribe}.png'
             position = tribePositions[i]
             im.parens(IM(tribeLocation)
@@ -226,9 +173,10 @@ class Card:
         directory = f'{self.base}/costs'
         # TODO: Will need to update this later to allow multi-cost cards!
         cost_path = None
-        for cost, amount in self.costs.items():
-            if amount:
-                cost_path = f'{directory}/{cost}{amount}.png'
+        for cost, amount in vars(self).items():
+            if 'cost' in cost:
+                if amount:
+                    cost_path = f'{directory}/{cost}{amount}.png'
         if cost_path:
             im.parens(
                 IM(cost_path)
@@ -253,30 +201,30 @@ class Card:
                 IM()
                 .pointsize(209)
                 .size(healthWidth, healthHeight)
-                .label(self.stats['health'])
+                .label(self.health)
                 .gravity('East')
                 .extent(healthWidth, healthHeight)
-            ).gravity('NorthEast').geometry(32 - self.terrainLayoutXoffset, 815).composite()
+            ).gravity('NorthEast').geometry(32 - self.terrain_layout_x_offset, 815).composite()
 
         return im
 
     def add_special_stat_icons(self, im):
+        # TODO: Will need to change this code if there's ever a staticon implemented to replace health
+        # As of now, calling self.staticon[0] is acceptable because it's never expected for a card to have
+        # more than 1 staticon. It's always assumed to be a replacement for power.
         directory = f'{self.base}/staticons'
-        self.cursor.execute('SELECT staticon_name FROM card_staticons WHERE card_filename = ?', (self.filename,))
-        row = self.cursor.fetchone()
-        if row:
+        if self.staticon:
             im.parens(
-                IM(f'{directory}/{row[0]}.png')
+                IM(f'{directory}/{self.staticon[0]}.png')
                 .interpolate('Nearest')
                 .filter('Point')
                 .resize(245)
                 .filter('Box')
                 .gravity('NorthWest')
             ).geometry(5, 705).composite()
-        elif self.stats['power'] is not None:
-
+        elif self.power is not None:
             drawPower = not (
-                (self.stats['power'] == 0 and (self.types['rarity'] == 'terrain' and 'no_terrain_layout' not in self.flags)) or 'hide_power_and_health' in self.flags)
+                (self.power == 0 and (self.rarity == 'terrain' and 'no_terrain_layout' not in self.flags)) or 'hide_power_and_health' in self.flags)
             if drawPower:
                 w = 114
                 h = 215
@@ -285,7 +233,7 @@ class Card:
                     .pointsize(209)
                     .size(w, h)
                     .gravity('West')
-                    .label(self.stats['power'])
+                    .label(self.power)
                     .extent(w, h)
                 ).gravity('NorthWest').geometry(68, 729).composite()
 
@@ -293,29 +241,28 @@ class Card:
 
     def add_sigils(self, im):
         directory = f'{self.base}/sigils'
-        sigils = self.get_sigils_from_database()
-        if sigils:
-            if len(sigils) == 1:
-                sigil_path = f'{directory}/{sigils[0]}.png'
+        if self.sigils:
+            if len(self.sigils) == 1:
+                sigil_path = f'{directory}/{self.sigils[0]}.png'
                 im.parens(
                     IM(sigil_path)
                     .interpolate('Nearest')
                     .filter('Point')
                     .resize(None, 253)
                     .filter('Box')
-                ).gravity('NorthWest').geometry(221 + self.terrainLayoutXoffset, 733).composite()
-            elif len(sigils) == 2:
-                sigil_path1 = f'{directory}/{sigils[0]}.png'
-                sigil_path2 = f'{directory}/{sigils[1]}.png'
+                ).gravity('NorthWest').geometry(221 + self.terrain_layout_x_offset, 733).composite()
+            elif len(self.sigils) == 2:
+                sigil_path1 = f'{directory}/{self.sigils[0]}.png'
+                sigil_path2 = f'{directory}/{self.sigils[1]}.png'
                 im.filter('Box')
                 im.parens(
                     IM(sigil_path1)
                     .resize(None, 180)
-                ).gravity('NorthWest').geometry(180 + self.terrainLayoutXoffset, 833).composite()
+                ).gravity('NorthWest').geometry(180 + self.terrain_layout_x_offset, 833).composite()
                 im.parens(
                     IM(sigil_path2)
                     .resize(None, 180)
-                ).gravity('NorthWest').geometry(331 + self.terrainLayoutXoffset, 720).composite()
+                ).gravity('NorthWest').geometry(331 + self.terrain_layout_x_offset, 720).composite()
             # TODO: Must implement 3 and 4 sigils on a card at some point!
             # elif len(sigils) == 3:
             #     pass
@@ -375,8 +322,7 @@ class Card:
         return im
     def add_long_elk_decal(self, im):
         directory = f'{self.base}/decals'
-        decals = self.get_decals_from_database()
-        if 'snelk' in decals:
+        if 'snelk' in self.decals:
             long_elk_decal_path = f'{directory}/snelk.png'
             im.parens(
                 IM(long_elk_decal_path)
@@ -384,9 +330,7 @@ class Card:
         return im
     def add_card_border(self, im):
         directory = f'{self.base}/cardbackgrounds'
-        temple = self.get_temple()
-        rarity = self.types['rarity']
-        background_path = f'{directory}/{temple}{rarity}.png'
+        background_path = f'{directory}/{self.temple}_{self.rarity}.png'
         if 'card_border' in self.flags:
             background = IM(background_path).resize(813, 1172)
             im.gravity('Center')\
@@ -398,9 +342,7 @@ class Card:
         return im
     def add_card_bleed(self, im):
         directory = f'{self.base}/cardbackgrounds'
-        temple = self.get_temple()
-        rarity = self.types['rarity']
-        background_path = f'{directory}/{temple}{rarity}_bleed.png'
+        background_path = f'{directory}/{self.temple}_{self.rarity}_bleed.png'
         if 'card_bleed' in self.flags:
             background = IM(background_path).resize(891, None)
             im.gravity('Center')\
@@ -443,9 +385,8 @@ class Card:
     def add_decals(self, im):
         # TODO: Add a helper function that gives priority to certain decals. Add a column to decal table for priority!
         directory = f'{self.base}/decals'
-        decals = self.get_decals_from_database()
-        if decals:
-            for decal in decals:
+        if self.decals:
+            for decal in self.decals:
                 if decal != 'snelk':
                     decal_path = f'{directory}/{decal}.png'
                     im.parens(

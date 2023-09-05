@@ -102,18 +102,18 @@ cursor.execute('''CREATE TABLE card_sigils (
 
 cursor.execute('''CREATE TABLE card_flags (
     card_filename VARCHAR(45),  
-    flag_name INTEGER,          
-    PRIMARY KEY (card_filename, flag_name),
+    flag_filename INTEGER,          
+    PRIMARY KEY (card_filename, flag_filename),
     FOREIGN KEY (card_filename) REFERENCES cards (filename),
-    FOREIGN KEY (flag_name) REFERENCES flags (name)
+    FOREIGN KEY (flag_filename) REFERENCES flags (name)
 );''')
 
 cursor.execute('''CREATE TABLE card_staticons (
     card_filename VARCHAR(45),  
-    staticon_name INTEGER,          
-    PRIMARY KEY (card_filename, staticon_name),
+    staticon_filename INTEGER,          
+    PRIMARY KEY (card_filename, staticon_filename),
     FOREIGN KEY (card_filename) REFERENCES cards (filename),
-    FOREIGN KEY (staticon_name) REFERENCES staticons (name)
+    FOREIGN KEY (staticon_filename) REFERENCES staticons (name)
 );''')
 
 
@@ -855,7 +855,7 @@ card_flag_data = [
     ('TrapFrog', 'no_terrain_layout')
 ]
 for data in card_flag_data:
-    cursor.execute('INSERT INTO card_flags (card_filename, flag_name) VALUES (?, ?)', data)
+    cursor.execute('INSERT INTO card_flags (card_filename, flag_filename) VALUES (?, ?)', data)
 
 # Card Staticons
 card_staticon_data = [
@@ -869,7 +869,7 @@ card_staticon_data = [
     ('RedHart', 'sacrifices'),
 ]
 for data in card_staticon_data:
-    cursor.execute('INSERT INTO card_staticons (card_filename, staticon_name) VALUES (?, ?)', data)
+    cursor.execute('INSERT INTO card_staticons (card_filename, staticon_filename) VALUES (?, ?)', data)
 
 # Card Decals
 card_decal_data = [

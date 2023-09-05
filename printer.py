@@ -1,18 +1,59 @@
 import os
+import sqlite3
+
 from card import Card
 from patch import Patch
-from helpers import db_connect
 
-@db_connect
-def generate_front_cards(cursor):
-    # SELECT and fetch to retrieve all cards from table
-    cursor.execute('SELECT * FROM cards')
-    rows = cursor.fetchall()
+def call_database(dict_mode, query, data=None):
+    try:
+        conn = sqlite3.connect('database/inscryption.db')
+        if dict_mode is True:
+            conn.row_factory = sqlite3.Row
+
+        cursor = conn.cursor()
+
+        if data:
+            cursor.execute(query, data)
+        else:
+            cursor.execute(query)
+
+        result = cursor.fetchall()
+
+        return result
+    except sqlite3.Error as e:
+        print("SQLite error:", e)
+    finally:
+        conn.close()
+def get_data(table_name, filename):
+    query = f'SELECT * FROM {table_name} WHERE card_filename = ?'
+    rows = call_database(True, query, (filename,))
+    data_as_dicts = [dict(row) for row in rows]
+    return data_as_dicts
+def generate_front_cards():
+    cards = call_database(True, 'SELECT * FROM cards')
 
     for i in range(3):
         # Generating all cards
-        for row in rows:
-            card = Card(cursor, './', *row)
+        for data in cards:
+            card_data = dict(data)
+            filename = card_data["filename"]
+            tribe_data = get_data('card_tribes', filename)
+            sigil_data = get_data('card_sigils', filename)
+            flag_data = get_data('card_flags', filename)
+            decal_data = get_data('card_decals', filename)
+            deathcard_data = get_data('death_cards', filename)
+            deathcard_data = deathcard_data[0] if len(deathcard_data) == 1 else None
+            staticon_data = get_data('card_staticons', filename)
+            category_data = get_data('card_categories', filename)[0]['category']
+
+
+            # Connect for card
+            conn = sqlite3.connect('database/inscryption.db')
+            cursor = conn.cursor()
+            card = Card(cursor, './', card_data, tribe_data, sigil_data, flag_data,
+                        decal_data, deathcard_data, staticon_data, category_data)
+            cursor.close()
+            conn.close()
             if i == 1:
                 card.flags.append('card_border')
                 card_type = 'border'
@@ -23,12 +64,8 @@ def generate_front_cards(cursor):
             else:
                 card_type = 'regular'
 
-            # Get the card category from the database
-            cursor.execute('SELECT category FROM card_categories WHERE card_filename = ?', (card.filename,))
-            category = cursor.fetchone()[0]
-
             # Create the full directory path
-            directory_path = os.path.join('output', 'cards', category, card.types['temple'], card_type)
+            directory_path = os.path.join('output', 'cards', card.category, card.temple, card_type)
 
             # Check if the directory exists, and create it if it doesn't
             if not os.path.exists(directory_path):
@@ -36,13 +73,14 @@ def generate_front_cards(cursor):
 
             # Generating the card image
             card_image_buffer = card.generate_card_image()
-            #card.disconnect()
 
             with open(os.path.join(directory_path, f'{card.filename}.png'), 'wb') as image_file:
                 image_file.write(card_image_buffer)
 
-@db_connect
-def generate_patches(cursor):
+def generate_patches():
+    conn = sqlite3.connect('database/inscryption.db')
+    cursor = conn.cursor()
+
     # SELECT and fetch to retrieve all cards from table
     cursor.execute('SELECT * FROM sigils')
     rows = cursor.fetchall()

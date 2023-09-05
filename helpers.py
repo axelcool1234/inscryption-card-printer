@@ -5,6 +5,7 @@ from typing import Optional, Callable, Union, List
 def db_connect(func):
     def wrapper(*args, **kwargs):
         conn = sqlite3.connect('database/inscryption.db')
+        conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         result = func(cursor, *args, **kwargs)
         conn.close()
