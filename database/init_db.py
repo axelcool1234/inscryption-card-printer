@@ -18,6 +18,7 @@ cursor.execute('DROP TABLE IF EXISTS card_tribes;')
 cursor.execute('DROP TABLE IF EXISTS card_sigils;')
 cursor.execute('DROP TABLE IF EXISTS card_flags;')
 cursor.execute('DROP TABLE IF EXISTS card_decals;')
+cursor.execute('DROP TABLE IF EXISTS card_before_decals;')
 cursor.execute('DROP TABLE IF EXISTS death_cards;')
 cursor.execute('DROP TABLE IF EXISTS card_staticons;')
 cursor.execute('DROP TABLE IF EXISTS card_categories;')
@@ -137,6 +138,14 @@ cursor.execute('''CREATE TABLE card_decals (
     PRIMARY KEY (card_filename, decal_filename),
     FOREIGN KEY (card_filename) REFERENCES cards (filename),
     FOREIGN KEY (decal_filename) REFERENCES flags (filename)
+);''')
+
+cursor.execute('''CREATE TABLE card_before_decals (
+    card_filename VARCHAR(45),  
+    before_decal_filename INTEGER,     
+    PRIMARY KEY (card_filename, before_decal_filename),
+    FOREIGN KEY (card_filename) REFERENCES cards (filename),
+    FOREIGN KEY (before_decal_filename) REFERENCES flags (filename)
 );''')
 
 cursor.execute('''CREATE TABLE card_categories (
@@ -918,6 +927,13 @@ card_decal_data = [
 ]
 for data in card_decal_data:
     cursor.execute('INSERT INTO card_decals (card_filename, decal_filename) VALUES (?, ?)', data)
+
+# Card Decals (Before Portrait)
+card_before_decal_data = [
+
+]
+for data in card_decal_data:
+    cursor.execute('INSERT INTO card_before_decals (card_filename, before_decal_filename) VALUES (?, ?)', data)
 
 # Commit and disconnect
 conn.commit()

@@ -72,7 +72,58 @@
             margin: 0 auto;
             margin-top: 20px;
         }
+
+        /* Style the radio button container */
+        .radio-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .radio-container label {
+            margin-right: 10px;
+        }
     </style>
+        <script>
+        // JavaScript function to handle cost selection
+        function handleCostSelection() {
+            const bloodCost = document.getElementById("blood_cost");
+            const boneCost = document.getElementById("bone_cost");
+            const energyCost = document.getElementById("energy_cost");
+            const orangeMoxCost = document.getElementById("orange_mox_cost");
+            const greenMoxCost = document.getElementById("green_mox_cost");
+            const blueMoxCost = document.getElementById("blue_mox_cost");
+
+            const moxCosts = [orangeMoxCost, greenMoxCost, blueMoxCost];
+
+            // Disable all cost inputs and set their values to "0"
+            bloodCost.disabled = true;
+            bloodCost.value = 0;
+
+            boneCost.disabled = true;
+            boneCost.value = 0;
+
+            energyCost.disabled = true;
+            energyCost.value = 0;
+
+            moxCosts.forEach((mox) => {
+                mox.disabled = true;
+                mox.value = 0;
+            });
+
+            const selectedCost = document.querySelector('input[name="selected_cost"]:checked').value;
+
+            if (selectedCost === "blood") {
+                bloodCost.disabled = false;
+            } else if (selectedCost === "bone") {
+                boneCost.disabled = false;
+            } else if (selectedCost === "energy") {
+                energyCost.disabled = false;
+            } else if (selectedCost === "mox") {
+                moxCosts.forEach((mox) => (mox.disabled = false));
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="form-container">
@@ -80,6 +131,16 @@
 
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" placeholder="Enter Name" value="">
+
+            <label>Before Decals:</label>
+            <div class="checkbox-group">
+                {% for before_decal in before_decals %}
+                <div class="grouped-element">
+                    <input type="checkbox" id="{{ before_decal[0] }}" name="before_decals" value="{{ before_decal[1] }}">
+                    <label for="{{ before_decal[0] }}">{{ before_decal[0] }}</label>
+                </div>
+                {% endfor %}
+            </div>
 
             <label>Decals:</label>
             <div class="checkbox-group">
@@ -158,8 +219,6 @@
                 <option value="True">True</option>
             </select>
 
-
-
             <label for="staticon">Stat Icon:</label>
             <select id="staticon" name="staticon">
                     <option value="None">-</option>
@@ -173,6 +232,22 @@
 
             <label for="health">Health:</label>
             <input type="text" id="health" name="health" placeholder="Enter Health" value="0">
+
+            <!-- Add radio buttons for cost selection -->
+            <label for="cost">Select Cost:</label>
+            <div class="radio-container">
+                <input type="radio" id="blood_radio" name="selected_cost" value="blood" onclick="handleCostSelection()" checked>
+                <label for="blood_radio">Blood</label>
+
+                <input type="radio" id="bone_radio" name="selected_cost" value="bone" onclick="handleCostSelection()">
+                <label for="bone_radio">Bone</label>
+
+                <input type="radio" id="energy_radio" name="selected_cost" value="energy" onclick="handleCostSelection()">
+                <label for="energy_radio">Energy</label>
+
+                <input type="radio" id="mox_radio" name="selected_cost" value="mox" onclick="handleCostSelection()">
+                <label for="mox_radio">Mox</label>
+            </div>
 
             <label for="blood_cost">Blood Cost:</label>
             <input type="text" id="blood_cost" name="blood_cost" placeholder="Enter Blood Cost" value="0">

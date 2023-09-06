@@ -109,15 +109,16 @@ def generate_card_view():
         flags.append('no_portrait')
     power = request.form.get('power')
     health = request.form.get('health')
-    blood_cost = int(request.form.get('blood_cost'))
-    bone_cost = int(request.form.get('bone_cost'))
-    energy_cost = int(request.form.get('energy_cost'))
-    orange_mox_cost = int(request.form.get('orange_mox_cost'))
-    green_mox_cost = int(request.form.get('green_mox_cost'))
-    blue_mox_cost = int(request.form.get('blue_mox_cost'))
+    blood_cost = int(request.form.get('blood_cost')) if request.form.get('blood_cost') is not None else 0
+    bone_cost = int(request.form.get('bone_cost')) if request.form.get('bone_cost') is not None else 0
+    energy_cost = int(request.form.get('energy_cost')) if request.form.get('energy_cost') is not None else 0
+    orange_mox_cost = int(request.form.get('orange_mox_cost')) if request.form.get('orange_mox_cost') is not None else 0
+    green_mox_cost = int(request.form.get('green_mox_cost')) if request.form.get('green_mox_cost') is not None else 0
+    blue_mox_cost = int(request.form.get('blue_mox_cost')) if request.form.get('blue_mox_cost') is not None else 0
     rarity = request.form.get('rarity')
     temple = request.form.get('temple')
     decals = request.form.getlist('decals')
+    before_decals = request.form.getlist('before_decals')
     tribes = request.form.getlist('tribes')
     first_sigil = request.form.getlist('first_sigil')
     first_sigil = {'sigil_filename': first_sigil[0], 'priority': 1}
@@ -154,6 +155,7 @@ def generate_card_view():
         sigil_data = [first_sigil, second_sigil]
     flag_data = [{'flag_filename': flag} for flag in flags]
     decal_data = [{'decal_filename': decal} for decal in decals]
+    before_decal_data = [{'before_decal_filename': before_decal} for before_decal in before_decals]
     deathcard_data = None
     if staticon != ['None']:
         staticon_data = [{'staticon_filename': icon} for icon in staticon]
@@ -162,14 +164,15 @@ def generate_card_view():
     category_data = None
     # Generate the card based on user input
     image_base64 = Card(cursor, '../', card_data, tribe_data, sigil_data, flag_data,
-                 decal_data, deathcard_data, staticon_data, category_data).generate_card_image()
+                 before_decal_data, decal_data, deathcard_data, staticon_data, category_data).generate_card_image()
     image_base64 = base64.b64encode(image_base64).decode('utf-8')
 
     db_data = get_database_data()
     return render_template('index.html', decals = db_data['decals'], tribes = db_data['tribes'],
                            temples = db_data['temples'], sigils = db_data['sigils'],
                            rarities = db_data['rarities'], portraits = db_data['portraits'],
-                           staticons = db_data['staticons'], image_base64 = image_base64)
+                           staticons = db_data['staticons'], before_decals = db_data['decals'],
+                           image_base64 = image_base64)
 
 if __name__ == '__main__':
     app.run(debug = True)

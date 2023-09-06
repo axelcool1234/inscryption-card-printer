@@ -41,19 +41,17 @@ def generate_front_cards():
             sigil_data = get_data('card_sigils', filename)
             flag_data = get_data('card_flags', filename)
             decal_data = get_data('card_decals', filename)
+            before_decal_data = get_data('card_before_decals', filename)
             deathcard_data = get_data('death_cards', filename)
             deathcard_data = deathcard_data[0] if len(deathcard_data) == 1 else None
             staticon_data = get_data('card_staticons', filename)
             category_data = get_data('card_categories', filename)[0]['category']
 
-            print(sigil_data)
-
-
             # Connect for card
             conn = sqlite3.connect('database/inscryption.db')
             cursor = conn.cursor()
             card = Card(cursor, './', card_data, tribe_data, sigil_data, flag_data,
-                        decal_data, deathcard_data, staticon_data, category_data)
+                        decal_data, before_decal_data, deathcard_data, staticon_data, category_data)
             cursor.close()
             conn.close()
             if i == 1:

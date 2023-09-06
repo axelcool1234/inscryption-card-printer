@@ -10,7 +10,7 @@ class Card:
     fullsize_card_height = 1050 # px
     scale = fullsize_card_height / original_card_height
     def __init__(self, cursor, base, card_data, tribe_data, sigil_data, flag_data,
-                 decal_data, deathcard_data, staticon_data, category_data):
+                 before_decal_data, decal_data, deathcard_data, staticon_data, category_data):
         # Establish base directory
         self.base = base + 'resource'
         # Gain access to database
@@ -30,6 +30,7 @@ class Card:
         self.flags = self.establish_attribute_data(flag_data, 'flag')
         # Establish decal data
         self.decals = self.establish_attribute_data(decal_data, 'decal')
+        self.before_decals = self.establish_attribute_data(before_decal_data, 'before_decal')
         # Establish deathcard data
         self.deathcard = deathcard_data
         # Establish staticon data
@@ -47,6 +48,7 @@ class Card:
     def establish_attribute_data(self, data, data_type):
         attributes = []
         for row in data:
+            print(row)
             attributes.append(row[f'{data_type}_filename'])
         return attributes
     def get_notes_from_database(self):
@@ -81,6 +83,7 @@ class Card:
     def generate_card_image(self):
         im = self.initialize_image_builder()
         im = self.add_card_background(im)
+        im = self.add_decals(im, 'before')
         im = self.add_card_portrait(im)
         # Resize
         im.resize(None, self.fullsize_card_height) # 1050 pixels @ 300 dpi = 3.5 inches
@@ -97,7 +100,7 @@ class Card:
         im = self.add_card_border(im)
         im = self.add_card_bleed(im)
         im = self.apply_emission_effects(im)
-        im = self.add_decals(im)
+        im = self.add_decals(im, 'after')
         im = self.add_golden_effect(im)
         return self.generate_image_buffer(im)
 
@@ -385,10 +388,10 @@ class Card:
                 ).compose('Overlay').composite()
 
         return im
-    def add_decals(self, im):
+    def add_decals(self, im, when):
         # TODO: Add a helper function that gives priority to certain decals. Add a column to decal table for priority!
         directory = f'{self.base}/decals'
-        if self.decals:
+        if when == 'after' and self.decals:
             for decal in self.decals:
                 if decal != 'snelk':
                     decal_path = f'{directory}/{decal}.png'
@@ -396,6 +399,14 @@ class Card:
                         IM(decal_path)
                         .filter('Box')
                         .resize(None, self.fullsize_card_height)
+                    ).gravity('Center').composite()
+        elif when == 'before' and self.before_decals:
+            for decal in self.before_decals:
+                if decal != 'snelk':
+                    decal_path = f'{directory}/{decal}.png'
+                    im.parens(
+                        IM(decal_path)
+                        .filter('Box')
                     ).gravity('Center').composite()
         return im
 
