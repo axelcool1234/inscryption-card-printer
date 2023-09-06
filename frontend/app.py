@@ -23,7 +23,6 @@ def get_database_data():
     # Query the database to retrieve decals
     cursor.execute('SELECT name, filename FROM decals')
     database_data['decals'] = cursor.fetchall()
-    print(database_data['decals'])
 
     # Query the database to retrieve rarities
     cursor.execute('SELECT name, filename FROM rarities')
@@ -88,16 +87,17 @@ def generate_card_view():
     temple = request.form.get('temple')
     decals = request.form.getlist('decals')
     tribes = request.form.getlist('tribes')
-    sigils = request.form.getlist('sigils')
-    staticons = request.form.getlist('staticons')
+    first_sigil = request.form.getlist('first_sigil')
+    first_sigil = {'sigil_filename': first_sigil[0], 'priority': 1}
+    second_sigil = request.form.getlist('second_sigil')
+    second_sigil = {'sigil_filename': second_sigil[0], 'priority': 2}
+    staticon = request.form.getlist('staticon')
     card_type = request.form.get('card_type')
-    print(card_type)
     if card_type == 'border':
         flags.append('card_border')
     elif card_type == 'bleed':
         flags.append('card_border')
         flags.append('card_bleed')
-
     card_data = {'name': f'{name}', 'filename': f'{portrait}',
                          'power': power, 'health': health, 'blood_cost': blood_cost,
                          'bone_cost': bone_cost, 'energy_cost': energy_cost,
@@ -105,13 +105,19 @@ def generate_card_view():
                          'blue_mox_cost': blue_mox_cost, 'rarity': f'{rarity}', 'temple': f'{temple}',
                          'note_id': None}
     tribe_data = [{'tribe_filename': tribe} for tribe in tribes]
-    sigil_data = [{'sigil_filename': sigil} for sigil in sigils]
+    if first_sigil['sigil_filename'] == 'None' and second_sigil['sigil_filename'] == 'None':
+        sigil_data = []
+    elif first_sigil['sigil_filename'] != 'None' and second_sigil['sigil_filename'] == 'None':
+        sigil_data = [first_sigil,]
+    elif first_sigil['sigil_filename'] == 'None' and second_sigil['sigil_filename'] != 'None':
+        sigil_data = [second_sigil, ]
+    else:
+        sigil_data = [first_sigil, second_sigil]
     flag_data = [{'flag_filename': flag} for flag in flags]
     decal_data = [{'decal_filename': decal} for decal in decals]
     deathcard_data = None
-    staticon_data = [{'staticon_filename': staticon} for staticon in staticons]
+    staticon_data = [{'staticon_filename': icon} for icon in staticon]
     category_data = None
-
     # Generate the card based on user input
     image_base64 = Card(cursor, '../', card_data, tribe_data, sigil_data, flag_data,
                  decal_data, deathcard_data, staticon_data, category_data).generate_card_image()
