@@ -91,6 +91,7 @@ def generate_card_view():
     sigils = request.form.getlist('sigils')
     staticons = request.form.getlist('staticons')
     card_type = request.form.get('card_type')
+    print(card_type)
     if card_type == 'border':
         flags.append('card_border')
     elif card_type == 'bleed':
@@ -116,7 +117,11 @@ def generate_card_view():
                  decal_data, deathcard_data, staticon_data, category_data).generate_card_image()
     image_base64 = base64.b64encode(image_base64).decode('utf-8')
 
-    return render_template('index.html', image_base64 = image_base64)
+    db_data = get_database_data()
+    return render_template('index.html', decals = db_data['decals'], tribes = db_data['tribes'],
+                           temples = db_data['temples'], sigils = db_data['sigils'],
+                           rarities = db_data['rarities'], portraits = db_data['portraits'],
+                           staticons = db_data['staticons'], image_base64 = image_base64)
 
 if __name__ == '__main__':
     app.run(debug = True)
