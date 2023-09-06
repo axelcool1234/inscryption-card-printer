@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Card</title>
+    <style>
+        /* Center align the form elements and add spacing */
+        body {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Split into two columns */
+            gap: 20px; /* Add spacing between columns */
+            align-items: start; /* Align form elements to the top */
+            margin: 20px;
+        }
+
+        /* Style the right column (form) */
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Style the left column (generated card) */
+        .card-container {
+            text-align: center;
+        }
+
+        /* Style the drop-down menu */
+        select {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        /* Style the checkboxes and labels */
+        label {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        /* Style the submit button */
+        input[type="submit"] {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        /* Center align the card image */
+        img {
+            display: block;
+            margin: 0 auto;
+            margin-top: 20px;
+        }
+
+        /* Style the list of decals and tribes */
+        ul {
+            list-style: none; /* Remove bullet points */
+            padding: 0; /* Remove default padding */
+            display: flex;
+            flex-direction: column; /* Arrange checkboxes vertically */
+            align-items: flex-start; /* Align checkboxes to the left */
+        }
+
+        /* Style individual list items */
+        li {
+            margin-top: 5px; /* Adjust the spacing between items */
+        }
+
+        /* Style the checkboxes */
+        input[type="checkbox"] {
+            margin-right: 5px; /* Add some spacing between checkbox and label */
+        }
+
+        /* Style for grouping checkboxes side by side */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap; /* Allow multiple rows if necessary */
+        }
+
+        /* Style for grouping labels side by side */
+        .label-group {
+            display: flex;
+            flex-wrap: wrap; /* Allow multiple rows if necessary */
+        }
+
+        /* Add some margin between grouped elements */
+        .grouped-element {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Your Card</h1>
+
+    <!-- Add form elements for user input -->
+    <form method="post" action="/generate_card">
+
+        <!-- Add input fields for name -->
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" placeholder="Enter Name" value="">
+
+        <!-- Add buttons for decals -->
+        <label for="decals">Decals:</label>
+        <div class="checkbox-group">
+            {% for decal in decals %}
+            <div class="grouped-element">
+                <input type="checkbox" id="{{ decal[0] }}" name="decals" value="{{ decal[1] }}">
+                <label for="{{ decal[0] }}">{{ decal[0] }}</label>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Add buttons for tribes -->
+        <label for="tribes">Tribes:</label>
+        <div class="checkbox-group">
+            {% for tribe in tribes %}
+            <div class="grouped-element">
+                <input type="checkbox" id="{{ tribe[0] }}" name="tribes" value="{{ tribe[1] }}">
+                <label for="{{ tribe[0] }}">{{ tribe[0] }}</label>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Add dropdown for sigils -->
+        <label for="first_sigil">Sigil 1:</label>
+        <select id="first_sigil" name="first_sigil">
+                <option value="None">-</option>
+            {% for sigil in sigils %}
+                <option value="{{ sigil[1] }}">{{ sigil[0] }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="second_sigil">Sigil 2:</label>
+        <select id="second_sigil" name="second_sigil">
+                <option value="None">-</option>
+            {% for sigil in sigils %}
+                <option value="{{ sigil[1] }}">{{ sigil[0] }}</option>
+            {% endfor %}
+        </select>
+
+
+        <!-- Add drop-down menu for temples -->
+        <label for="temple">Temple:</label>
+        <select id="temple" name="temple">
+            {% for temple in temples %}
+                <option value="{{ temple[1] }}">{{ temple[0] }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Add drop-down menu for rarity -->
+        <label for="rarity">Rarity:</label>
+        <select id="rarity" name="rarity">
+            {% for rarity in rarities %}
+                <option value="{{ rarity[1] }}">{{ rarity[0] }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Add drop-down menu for portraits -->
+        <label for="portrait">Portrait:</label>
+        <select id="portrait" name="portrait">
+                <option value="None">-</option>
+            {% for portrait in portraits %}
+                <option value="{{ portrait[1] }}">{{ portrait[0] }}</option>
+            {% endfor %}
+        </select>
+
+
+        <!-- Add drop-down menu for card type -->
+        <label for="card_type">Card Options:</label>
+        <select id="card_type" name="card_type">
+            <option value="regular">Regular</option>
+            <option value="border">Border</option>
+            <option value="print_bleed">Print Bleed</option>
+        </select>
+
+        <!-- Add drop-down menu for staticons -->
+        <label for="staticon">Stat Icon:</label>
+        <select id="staticon" name="staticon">
+                <option value="None">-</option>
+            {% for staticon in staticons %}
+                <option value="{{ staticon[0] }}">{{ staticon[0] }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Add input fields for Power and Health -->
+        <label for="power">Power:</label>
+        <input type="text" id="power" name="power" placeholder="Enter Power" value="0">
+
+        <label for="health">Health:</label>
+        <input type="text" id="health" name="health" placeholder="Enter Health" value="0">
+
+        <!-- Add input fields for all Costs -->
+        <label for="blood_cost">Blood Cost:</label>
+        <input type="text" id="blood_cost" name="blood_cost" placeholder="Enter Blood Cost" value="0">
+
+        <label for="bone_cost">Bone Cost:</label>
+        <input type="text" id="bone_cost" name="bone_cost" placeholder="Enter Bone Cost" value="0">
+
+        <label for="energy_cost">Energy Cost:</label>
+        <input type="text" id="energy_cost" name="energy_cost" placeholder="Enter Energy Cost" value="0">
+
+        <label for="orange_mox_cost">Orange Mox Cost:</label>
+        <input type="text" id="orange_mox_cost" name="orange_mox_cost" placeholder="Enter Orange Mox Cost" value="0">
+
+        <label for="green_mox_cost">Green Mox Cost:</label>
+        <input type="text" id="green_mox_cost" name="green_mox_cost" placeholder="Enter Green Mox Cost" value="0">
+
+        <label for="blue_mox_cost">Blue Mox Cost:</label>
+        <input type="text" id="blue_mox_cost" name="blue_mox_cost" placeholder="Enter Blue Mox Cost" value="0">
+
+        <!-- Submit button to generate the card -->
+        <input type="submit" value="Generate Card">
+    </form>
+
+    <!-- Display the card image on the left side -->
+    <div class="card-container">
+        <img src="data:image/png;base64,{{ image_base64 }}" alt="Your Card">
+    </div>
+</body>
+</html>

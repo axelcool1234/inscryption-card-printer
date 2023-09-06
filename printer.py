@@ -46,6 +46,8 @@ def generate_front_cards():
             staticon_data = get_data('card_staticons', filename)
             category_data = get_data('card_categories', filename)[0]['category']
 
+            print(tribe_data)
+
 
             # Connect for card
             conn = sqlite3.connect('database/inscryption.db')

@@ -24,6 +24,7 @@ class Card:
         self.tribes = self.establish_attribute_data(tribe_data, 'tribe')
         self.tribes = self.preserve_tribe_order()
         # Establish sigil data
+        # TODO: Preserve sigil priority for card
         self.sigils = self.establish_attribute_data(sigil_data, 'sigil')
         # Establish flag data
         self.flags = self.establish_attribute_data(flag_data, 'flag')
@@ -172,11 +173,12 @@ class Card:
     def add_card_cost(self, im):
         directory = f'{self.base}/costs'
         # TODO: Will need to update this later to allow multi-cost cards!
+        # TODO: Will need to update for mox cards!
         cost_path = None
         for cost, amount in vars(self).items():
             if 'cost' in cost:
                 if amount:
-                    cost_path = f'{directory}/{cost}{amount}.png'
+                    cost_path = f'{directory}/{cost}_{amount}.png'
         if cost_path:
             im.parens(
                 IM(cost_path)

@@ -8,7 +8,9 @@ cursor = conn.cursor()
 cursor.execute('DROP TABLE IF EXISTS flags;')
 cursor.execute('DROP TABLE IF EXISTS staticons;')
 cursor.execute('DROP TABLE IF EXISTS decals;')
+cursor.execute('DROP TABLE IF EXISTS rarities;')
 cursor.execute('DROP TABLE IF EXISTS notes;')
+cursor.execute('DROP TABLE IF EXISTS temples;')
 cursor.execute('DROP TABLE IF EXISTS sigils;')
 cursor.execute('DROP TABLE IF EXISTS tribes;')
 cursor.execute('DROP TABLE IF EXISTS cards;')
@@ -34,11 +36,21 @@ cursor.execute('''CREATE TABLE decals (
     filename TEXT PRIMARY KEY
 );''')
 
+cursor.execute('''CREATE TABLE rarities (
+    name VARCHAR(45),
+    filename TEXT PRIMARY KEY
+);''')
+
 cursor.execute('''CREATE TABLE notes (
     id INT PRIMARY KEY,
     description TEXT DEFAULT '',
     mechanics TEXT DEFAULT '',
     gmNotes TEXT DEFAULT ''
+);''')
+
+cursor.execute('''CREATE TABLE temples (
+    name VARCHAR(45),
+    filename TEXT PRIMARY KEY
 );''')
 
 cursor.execute('''CREATE TABLE sigils (
@@ -61,15 +73,17 @@ cursor.execute('''CREATE TABLE cards (
     filename VARCHAR(45) PRIMARY KEY,
     power INTEGER,
     health INTEGER,
-    bloodCost INTEGER DEFAULT 0,
-    boneCost INTEGER DEFAULT 0,
-    energyCost INTEGER DEFAULT 0,
-    orangeMoxCost INTEGER DEFAULT 0,
-    greenMoxCost INTEGER DEFAULT 0,
-    blueMoxCost INTEGER DEFAULT 0,
-    rarity VARCHAR(10) CHECK (rarity IN ('common', 'rare', 'terrain', 'rareTerrain', 'spell')) NOT NULL,
-    temple VARCHAR(10) CHECK (temple IN ('wizard', 'undead', 'tech', 'nature')) NOT NULL,
-    note_id INT
+    blood_cost INTEGER DEFAULT 0,
+    bone_cost INTEGER DEFAULT 0,
+    energy_cost INTEGER DEFAULT 0,
+    orange_mox_cost INTEGER DEFAULT 0,
+    green_mox_cost INTEGER DEFAULT 0,
+    blue_mox_cost INTEGER DEFAULT 0,
+    rarity VARCHAR(10) NOT NULL,
+    temple VARCHAR(10) NOT NULL,
+    note_id INT,
+    FOREIGN KEY (rarity) REFERENCES rarities (filename),
+    FOREIGN KEY (temple) REFERENCES temples (filename)
 );''')
 
 cursor.execute('''CREATE TABLE death_cards(
@@ -215,12 +229,33 @@ decal_data = [
 for data in decal_data:
     cursor.execute('INSERT INTO decals (name, filename) VALUES (?, ?)', data)
 
+# Rarities
+rarity_data = [
+    ('Common', 'common'),
+    ('Rare', 'rare'),
+    ('Terrain', 'terrain'),
+    ('Rare Terrain', 'rare_terrain'),
+    ('Spell', 'spell')
+]
+for data in rarity_data:
+    cursor.execute('INSERT INTO rarities (name, filename) VALUES (?, ?)', data)
+
 # Notes
 note_data = [
 
 ]
 for data in note_data:
     cursor.execute('INSERT INTO notes (id, description, mechanics, gmNotes) VALUES (?, ?, ?, ?)', data)
+
+# Temples
+temple_data = [
+    ('Nature', 'nature'),
+    ('Undead', 'undead'),
+    ('Tech', 'tech'),
+    ('Wizard', 'wizard')
+]
+for data in temple_data:
+    cursor.execute('INSERT INTO temples (name, filename) VALUES (?, ?)', data)
 
 # Tribes
 tribe_data = [
@@ -458,7 +493,7 @@ blood_card_data = [
     ('Kaycee', 'Kaycee', 1, 2, 1, 'common', 'nature', None)
 ]
 for data in blood_card_data:
-    cursor.execute('INSERT INTO cards (name, filename, power, health, bloodCost, rarity, temple, note_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', data)
+    cursor.execute('INSERT INTO cards (name, filename, power, health, blood_cost, rarity, temple, note_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', data)
 
 # Bone Cards
 bone_card_data = [
@@ -481,21 +516,21 @@ bone_card_data = [
     ('Kaminski', 'Kaminski', 0, 1, 1, 'common', 'nature', None)
 ]
 for data in bone_card_data:
-    cursor.execute('INSERT INTO cards (name, filename, power, health, boneCost, rarity, temple, note_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', data)
+    cursor.execute('INSERT INTO cards (name, filename, power, health, bone_cost, rarity, temple, note_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', data)
 
 # Energy Cards
 energy_card_data = [
 
 ]
 for data in energy_card_data:
-    cursor.execute('INSERT INTO cards (name, filename, power, health, boneCost, rarity, temple, note_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', data)
+    cursor.execute('INSERT INTO cards (name, filename, power, health, energy_cost, rarity, temple, note_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', data)
 
 # (Orange, Green, Blue) Mox Cards
 mox_card_data = [
 
 ]
 for data in mox_card_data:
-    cursor.execute('INSERT INTO cards (name, filename, power, health, orangeCost, greenCost, blueCost, rarity, temple, note_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', data)
+    cursor.execute('INSERT INTO cards (name, filename, power, health, orange_mox_cost, green_mox_cost, blue_mox_cost, rarity, temple, note_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', data)
 
 # Multi-Cost Cards
 # Will implement when needed
