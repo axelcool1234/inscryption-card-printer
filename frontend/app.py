@@ -17,7 +17,7 @@ def get_portraits_from_folder(folder_path):
         name, extension = os.path.splitext(filename)
 
         # Capitalize the name and add it to the portrait_data list
-        portrait_data.append((name.capitalize(), filename))
+        portrait_data.append((name.capitalize(), name))
 
     return portrait_data
 
