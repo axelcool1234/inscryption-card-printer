@@ -5,15 +5,22 @@ from flask import Flask, render_template, request
 from card import Card
 
 app = Flask(__name__)
+import os
+
+
 def get_portraits_from_folder(folder_path):
     portrait_data = []
     portrait_files = os.listdir(folder_path)
 
     for filename in portrait_files:
-        capitalized_name = filename.capitalize()
-        portrait_data.append((capitalized_name.strip('.png'), filename.strip('.png')))
+        # Split the filename into the name and extension parts (we don't need the extension)
+        name, extension = os.path.splitext(filename)
+
+        # Capitalize the name and add it to the portrait_data list
+        portrait_data.append((name.capitalize(), filename))
 
     return portrait_data
+
 def get_database_data():
     # Connect to the database
     conn = sqlite3.connect('../database/inscryption.db')
