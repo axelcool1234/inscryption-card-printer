@@ -100,11 +100,15 @@ def generate_card_view():
     second_sigil = {'sigil_filename': second_sigil[0], 'priority': 2}
     staticon = request.form.getlist('staticon')
     card_type = request.form.get('card_type')
+    golden = request.form.get('golden')
     if card_type == 'border':
         flags.append('card_border')
     elif card_type == 'bleed':
         flags.append('card_border')
         flags.append('card_bleed')
+    if golden == 'True':
+        flags.append('emission')
+        flags.append('golden')
     card_data = {'name': f'{name}', 'filename': f'{portrait}',
                          'power': power, 'health': health, 'blood_cost': blood_cost,
                          'bone_cost': bone_cost, 'energy_cost': energy_cost,

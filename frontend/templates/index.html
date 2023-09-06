@@ -3,6 +3,7 @@
 <head>
     <style>
         body {
+            background-color: #333;
             display: flex;
             justify-content: space-between;
             align-items: start;
@@ -13,8 +14,9 @@
         .form-container {
             flex: 1;
             padding: 20px;
-            border: 1px solid #ccc;
+            border: 1px solid #555;
             border-radius: 10px;
+            background-color: #444;
         }
 
         /* Style the card container */
@@ -28,14 +30,18 @@
             display: block;
             font-size: 16px;
             margin-bottom: 5px;
+            color: white;
         }
 
         input[type="text"],
         select {
-            width: 100%;
+            width: 98%;
             padding: 10px;
             font-size: 16px;
             margin-bottom: 15px;
+            background-color: #666;
+            color: white;
+            border: none;
         }
 
         /* Style checkboxes and labels */
@@ -138,6 +144,12 @@
                 <option value="regular">Regular</option>
                 <option value="border">Border</option>
                 <option value="bleed">Print Bleed</option>
+            </select>
+
+            <label for="golden">Golden:</label>
+            <select id="golden" name="golden">
+                <option value="False">False</option>
+                <option value="True">True</option>
             </select>
 
             <label for="staticon">Stat Icon:</label>
