@@ -359,11 +359,12 @@ class Card:
         directory = f'{self.base}/emissions'
         if 'emission' in self.flags and 'golden' not in self.flags:
             emission_path = f'{directory}/{self.filename}.png'
-            for i in [False, True]:
-                emission = IM(emission_path).command('-fill', 'rgb(161,247,186)', '-colorize', '100').resizeExt(lambda g: g.scale(self.scale * 100)).gravity('Center').geometry(3, -15 * self.scale)
-                if i == True:
-                    emission.command('-blur', '0x10')
-                im.parens(emission).composite()
+            if os.path.exists(emission_path):
+                for i in [False, True]:
+                    emission = IM(emission_path).command('-fill', 'rgb(161,247,186)', '-colorize', '100').resizeExt(lambda g: g.scale(self.scale * 100)).gravity('Center').geometry(3, -15 * self.scale)
+                    if i == True:
+                        emission.command('-blur', '0x10')
+                    im.parens(emission).composite()
         return im
 
     def add_golden_effect(self, im):

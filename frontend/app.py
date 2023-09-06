@@ -21,6 +21,30 @@ def get_portraits_from_folder(folder_path):
 
     return portrait_data
 
+def get_sigils_from_folder(folder_path):
+    # Connect to the database
+    conn = sqlite3.connect('../database/inscryption.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT name, filename FROM sigils')
+    db_sigils = cursor.fetchall()
+
+    sigil_data = []
+    sigil_files = os.listdir(folder_path)
+
+    for filename in sigil_files:
+        # Split the filename into the name and extension parts (we don't need the extension)
+        name, extension = os.path.splitext(filename)
+
+        # If sigils have an identified name in the database, rename it to that.
+        for row in db_sigils:
+            if name == row[1]:
+                name = row[0]
+
+        # Capitalize the name and add it to the portrait_data list
+        sigil_data.append((name.capitalize(), name))
+
+    return sigil_data
+
 def get_database_data():
     # Connect to the database
     conn = sqlite3.connect('../database/inscryption.db')
@@ -43,10 +67,6 @@ def get_database_data():
     cursor.execute('SELECT name, filename FROM temples')
     database_data['temples'] = cursor.fetchall()
 
-    # Query the database to retrieve sigils
-    cursor.execute('SELECT name, filename FROM sigils')
-    database_data['sigils'] = cursor.fetchall()
-
     # Query the database to retrieve staticons
     cursor.execute('SELECT name FROM staticons')
     database_data['staticons'] = cursor.fetchall()
@@ -58,6 +78,11 @@ def get_database_data():
     folder_path = '../resource/portraits'
     portrait_data = get_portraits_from_folder(folder_path)
     database_data['portraits'] = portrait_data
+
+    # Get sigils from folder
+    folder_path = '../resource/sigils'
+    sigil_data = get_sigils_from_folder(folder_path)
+    database_data['sigils'] = sigil_data
 
     return database_data
 
@@ -101,11 +126,14 @@ def generate_card_view():
     staticon = request.form.getlist('staticon')
     card_type = request.form.get('card_type')
     golden = request.form.get('golden')
+    emission = request.form.get('emission')
     if card_type == 'border':
         flags.append('card_border')
     elif card_type == 'bleed':
         flags.append('card_border')
         flags.append('card_bleed')
+    if emission == 'True':
+        flags.append('emission')
     if golden == 'True':
         flags.append('emission')
         flags.append('golden')
