@@ -514,7 +514,7 @@ blood_card_data = [
     ('Hydra', 'Hydra', 1, 5, 'bone_1', 'rare', 'nature', None),
     ('Reginald', 'Reginald', 1, 3, 'bone_3', 'common', 'nature', None),
     ('Kaminski', 'Kaminski', 0, 1, 'bone_1', 'common', 'nature', None),
-    # Mox Cards (Axel)
+    # Mox Cards (from Act 2) - Axel
     ('Junior Sage', 'juniorsage_splatter', 1, 2, '[green]', 'common', 'wizard', None)
 ]
 for data in blood_card_data:

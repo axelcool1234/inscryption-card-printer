@@ -1,3 +1,6 @@
+import re
+
+from printer import get_data, call_database
 from card import Card
 from helpers import db_connect
 
@@ -17,10 +20,16 @@ GEM_VALUE = {
     3: 8
 }
 
-def get_stats_value(card, stat):
+def get_power_value(card):
     value = 0
-    if card.stats[stat] is not None:
-        value = card.stats[stat]
+    if card.power is not None:
+        value = card.power
+    return value
+
+def get_health_value(card):
+    value = 0
+    if card.health is not None:
+        value = card.health
     return value
 
 def get_cost_value(card, cost):
@@ -31,33 +40,54 @@ def get_cost_value(card, cost):
 
 @db_connect
 def calculate_balance(cursor):
-    # SELECT and fetch to retrieve all cards from table
-    cursor.execute('SELECT * FROM cards')
-    rows = cursor.fetchall()
+    cards = call_database(True, 'SELECT * FROM cards')
 
     # Checking balance of all cards
-    for row in rows:
+    for data in cards:
         stat_points_spent = 0
-        card = Card(*row)
+        card_data = dict(data)
+        filename = card_data["filename"]
+        tribe_data = get_data('card_tribes', filename)
+        sigil_data = get_data('card_sigils', filename)
+        flag_data = get_data('card_flags', filename)
+        decal_data = get_data('card_decals', filename)
+        before_decal_data = get_data('card_before_decals', filename)
+        deathcard_data = get_data('death_cards', filename)
+        deathcard_data = deathcard_data[0] if len(deathcard_data) == 1 else None
+        staticon_data = get_data('card_staticons', filename)
+        category_data = get_data('card_categories', filename)[0]['category']
+
+        card = Card(cursor, './', card_data, tribe_data, sigil_data, flag_data,
+                    before_decal_data, decal_data, deathcard_data, staticon_data, category_data)
 
         print(card.name + ': ')
         # Get value of card - ie how many points can be spent for attack, health, sigils, etc.
-        blood = get_cost_value(card, 'blood')
-        bone = get_cost_value(card, 'bone')
-        energy = get_cost_value(card, 'energy')
-        orange = get_cost_value(card, 'orange')
-        green = get_cost_value(card, 'green')
-        blue = get_cost_value(card, 'blue')
-        stat_point_value = BLOOD_VALUE[blood] +\
-                           BONE_VALUE * bone +\
-                           ENERGY_VALUE * energy +\
-                           GEM_VALUE[orange + green + blue]
+        cost_map = {
+            'blood': 0,
+            'bone': 0,
+            'energy': 0,
+            'gem': 0,
+        }
+        if card.cost == None:
+            pass
+        elif card.cost[0] != '[':
+            cost_map[f'{card.cost.split("_")[0]}'] = int(card.cost.split("_")[1])
+        else:
+            for cost in re.findall(r'\[(.*?)\]', card.cost):
+                if cost not in ('blood', 'bone', 'energy'):
+                    cost_map['gem'] += 1
+                else:
+                    cost_map[cost] += 1
+        stat_point_value = BLOOD_VALUE[cost_map['blood']] +\
+                           BONE_VALUE * cost_map['bone'] +\
+                           ENERGY_VALUE * cost_map['energy'] +\
+                           GEM_VALUE[cost_map['gem']]
         if stat_point_value == 0:
             stat_point_value = 1
 
         # Get amount of points spent on card - ie the more powerful the card is, the more points were obviously spent on it.
-        power = get_stats_value(card, 'power')
-        health = get_stats_value(card, 'health')
+        power = get_power_value(card)
+        health = get_health_value(card)
 
         cursor.execute(f'SELECT * FROM card_sigils WHERE card_filename = ?', (card.filename,))
         sigils = cursor.fetchall()
@@ -65,7 +95,7 @@ def calculate_balance(cursor):
             stat_points_spent += sigil[2]
 
         stat_points_spent = (power * 2) + health
-        if card.types['rarity'] == 'rare' or '_Talking' in card.filename:
+        if card.rarity == 'rare' or '_Talking' in card.filename:
             stat_points_spent += 1
 
 
