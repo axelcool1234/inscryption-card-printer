@@ -1,5 +1,6 @@
 import subprocess
 import os
+import re
 from helpers import ImageMagickCommandBuilder
 IM = ImageMagickCommandBuilder
 
@@ -48,7 +49,6 @@ class Card:
     def establish_attribute_data(self, data, data_type):
         attributes = []
         for row in data:
-            print(row)
             attributes.append(row[f'{data_type}_filename'])
         return attributes
     def get_notes_from_database(self):
@@ -175,27 +175,51 @@ class Card:
 
     def add_card_cost(self, im):
         directory = f'{self.base}/costs'
-        # TODO: Will need to update this later to allow multi-cost cards!
-        # TODO: Will need to update for mox cards!
         cost_path = None
-        for cost, amount in vars(self).items():
-            if 'cost' in cost:
-                if amount:
-                    cost_path = f'{directory}/{cost}_{amount}.png'
-        if cost_path:
-            im.parens(
-                IM(cost_path)
-                .interpolate('Nearest')
-                .filter('Point')
-                .resize(284)
-                .filter('Box')
-                .gravity('East')
-            ).gravity('NorthEast')
-            im.geometry(32, 110)
-            im.composite()
+        for var, value in vars(self).items():
+            if var == 'cost':
+                if value is None or value == 'None':
+                    return im
+                elif value[0] != '[':
+                    cost_path = f'{directory}/{value}.png'
+                    im.parens(
+                        IM(cost_path)
+                        .interpolate('Nearest')
+                        .filter('Point')
+                        .resize(284)
+                        .filter('Box')
+                        .gravity('East')
+                    ).gravity('NorthEast')
+                    im.geometry(32, 110)
+                    im.composite()
 
-            im.gravity('NorthWest')
+                    im.gravity('NorthWest')
+                else:
+                    costs = re.findall(r'\[(.*?)\]', value)
+                    if len(costs) > 2:
+                        cost_path =f'{directory}/long_cost.png'
+                    else:
+                        cost_path =f'{directory}/short_cost.png'
+                    base = IM(cost_path)
+                    base.gravity('NorthWest')
+                    for i, cost in enumerate(costs):
+                        gem_path = f'{directory}/{cost}.png'
+                        base.resource(gem_path)
+                        location = (19, 1) if i == 0 else (7, 1) if i == 1 else (-5, 1) if i == 2 else (-17, 1) if i == 3 else (-29, 1)
+                        base.geometry(*location).composite()
+                    im.parens(
+                        base
+                        .interpolate('Nearest')
+                        .filter('Point')
+                        .resize(284)
+                        .filter('Box')
+                        .gravity('East')
+                    ).gravity('NorthEast')
+                    im.geometry(32, 110)
+                    im.composite()
 
+                    im.gravity('NorthWest')
+                    #for cost in costs:
         return im
 
     def add_health(self, im):

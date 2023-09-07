@@ -112,9 +112,13 @@ def generate_card_view():
     blood_cost = int(request.form.get('blood_cost')) if request.form.get('blood_cost') is not None else 0
     bone_cost = int(request.form.get('bone_cost')) if request.form.get('bone_cost') is not None else 0
     energy_cost = int(request.form.get('energy_cost')) if request.form.get('energy_cost') is not None else 0
-    orange_mox_cost = int(request.form.get('orange_mox_cost')) if request.form.get('orange_mox_cost') is not None else 0
-    green_mox_cost = int(request.form.get('green_mox_cost')) if request.form.get('green_mox_cost') is not None else 0
-    blue_mox_cost = int(request.form.get('blue_mox_cost')) if request.form.get('blue_mox_cost') is not None else 0
+    multi_cost_1 = request.form.get('multi_cost_1')
+    multi_cost_2 = request.form.get('multi_cost_2')
+    multi_cost_3 = request.form.get('multi_cost_3')
+    multi_cost_4 = request.form.get('multi_cost_4')
+    multi_cost = [multi_cost_1, multi_cost_2, multi_cost_3, multi_cost_4]
+    multi_cost = [cost for cost in multi_cost if cost != 'None']
+    print(multi_cost)
     rarity = request.form.get('rarity')
     temple = request.form.get('temple')
     decals = request.form.getlist('decals')
@@ -138,11 +142,24 @@ def generate_card_view():
     if golden == 'True':
         flags.append('emission')
         flags.append('golden')
+
+    cost = ''
+    if blood_cost != 0:
+        cost = 'blood_'+str(blood_cost)
+    elif bone_cost != 0:
+        cost = 'bone_'+str(bone_cost)
+    elif energy_cost != 0:
+        cost = 'energy_'+str(energy_cost)
+    elif len(multi_cost) != 0:
+        for next_cost in multi_cost:
+            add = '[' + next_cost + ']'
+            cost += add
+            pass
+    else:
+        cost = None
+    print(cost)
     card_data = {'name': f'{name}', 'filename': f'{portrait}',
-                         'power': power, 'health': health, 'blood_cost': blood_cost,
-                         'bone_cost': bone_cost, 'energy_cost': energy_cost,
-                         'orange_mox_cost': orange_mox_cost, 'green_most_cost': green_mox_cost,
-                         'blue_mox_cost': blue_mox_cost, 'rarity': f'{rarity}', 'temple': f'{temple}',
+                         'power': power, 'health': health, 'cost': f'{cost}', 'rarity': f'{rarity}', 'temple': f'{temple}',
                          'note_id': None}
     tribe_data = [{'tribe_filename': tribe} for tribe in tribes]
     if first_sigil['sigil_filename'] == 'None' and second_sigil['sigil_filename'] == 'None':

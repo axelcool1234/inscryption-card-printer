@@ -51,7 +51,7 @@ def generate_front_cards():
             conn = sqlite3.connect('database/inscryption.db')
             cursor = conn.cursor()
             card = Card(cursor, './', card_data, tribe_data, sigil_data, flag_data,
-                        decal_data, before_decal_data, deathcard_data, staticon_data, category_data)
+                        before_decal_data, decal_data, deathcard_data, staticon_data, category_data)
             cursor.close()
             conn.close()
             if i == 1:
