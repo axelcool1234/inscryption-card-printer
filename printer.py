@@ -1,7 +1,10 @@
 import os
+import shutil
 import sqlite3
+import subprocess
 
 from card import Card
+from helpers import db_connect
 from patch import Patch
 
 def call_database(dict_mode, query, data=None):
@@ -106,6 +109,91 @@ def generate_patches():
         with open(os.path.join(directory_path, f'{patch.filename}.png'), 'wb') as image_file:
             image_file.write(patch_image_buffer)
 
+def open_templates():
+    templates = {}
+    for file in os.listdir("resource/latex_templates/"):
+        with open(f"resource/latex_templates/{file}", "r") as template_file:
+            templates[file.split(' ')[0].lower()] = template_file.read()
+    return templates
+
+def generate_latex(entries, font):
+    #Get templates
+    templates = open_templates()
+    #Start with preamble (beginning of document)
+    latex_content = templates["preamble"].replace("FONT", font)
+    #Go through each entry and properly format it based off which type of entry it is.
+    current_type = "None"
+    for entry in entries:
+        name, image_path, description = entry
+
+        if current_type != image_path.split('/')[1]:
+            current_type = image_path.split('/')[1]
+
+            if current_type == "VariableStats":
+                title = "Variable Stats"
+            else:
+                title = current_type
+            latex_content += "\\newpage\n"
+            latex_content += "\chaptertitle{" + f"{title}" + "}{0.5}\n"
+            latex_content += "\\newpage\n"
+
+            match current_type:
+                case "Boons":
+                    latex_content += "\customHeaderFooter{0.5}{1.75}{0.5}{1.75}\n"
+                case "Items":
+                    latex_content += "\customHeaderFooter{0.5}{1.75}{0.5}{1.75}\n"
+                case "Sigils":
+                    latex_content += "\customHeaderFooter{0.5}{1.75}{0.5}{1.75}\n"
+                case "VariableStats":
+                    latex_content += "\customHeaderFooter{0.5}{1.75}{0.5}{1.75}\n"
+                case "Spells":
+                    #I have no spells yet, don't need to worry about this case.
+                    pass
+        entry = templates[current_type].replace("NAME", name.strip('_'))
+        entry = entry.replace("IMAGE_PATH", image_path)
+        entry = entry.replace("DESCRIPTION", description) if description is not None else entry.replace("DESCRIPTION", 'None')
+        entry = entry.replace("FONT", font)
+        latex_content += entry
+    #End of document
+    latex_content += "\\end{document}"
+
+    #Create tex file
+    with open("output/rulebook.tex", "w") as tex_file:
+        tex_file.write(latex_content)
+
+def compile_latex_to_pdf():
+    subprocess.run(["lualatex", "output/rulebook.tex"])
+    # Run again to make sure references and TOC are generated properly
+    subprocess.run(["lualatex", "output/rulebook.tex"])
+
+    # Move generated files to the output folder
+    generated_files = ["rulebook.pdf", "rulebook.aux", "rulebook.log"]
+    for file in generated_files:
+        shutil.move(file, f"output/rulebook/{file}")
+
+@db_connect
+def generate_rulebook(cursor):
+    font = "HEAVYWEIGHT"
+    entries = []
+    # TODO: Eventually include spells if those are ever implemented
+    # TODO: Add boons and items tables to database
+    entry_types = ["boons", "items", "sigils", "staticons"]
+
+    for entry_type in entry_types:
+        cursor.execute(f'SELECT * FROM {entry_type}')
+        rows = cursor.fetchall()
+        for row in rows:
+            row = dict(row)
+            name = row['name']
+            image_path = f'resource/{entry_type}/{row["filename"]}.png'
+            description = cursor.execute(f'SELECT description FROM notes WHERE filename = ? AND type = ?', (row['filename'], entry_type)).fetchone()
+            description = dict(description)['description'] if description is not None else None
+            entries.append((name, image_path, description))
+
+    generate_latex(entries, font)
+    compile_latex_to_pdf()
+
 if __name__ == '__main__':
     generate_front_cards()
     generate_patches()
+    generate_rulebook()

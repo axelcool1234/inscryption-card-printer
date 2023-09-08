@@ -38,11 +38,6 @@ class Card:
         self.staticon = self.establish_attribute_data(staticon_data, 'staticon')
         # Establish category data
         self.category = category_data
-        # Get notes
-        if self.note_id is None:
-            self.notes = None
-        else:
-            self.notes = self.get_notes_from_database()
         # Get terrain layout offset
         self.terrain_layout_x_offset = self.get_terrain_layout()
 
@@ -52,19 +47,21 @@ class Card:
             attributes.append(row[f'{data_type}_filename'])
         return attributes
     def get_notes_from_database(self):
-        # SELECT query and fetch to retrieve notes based on note_id
-        self.cursor.execute('SELECT description, mechanics, gmNotes FROM notes WHERE id = ?', (self.note_id,))
-        row = self.cursor.fetchone()
-        # Assign notes to card
-        if row:
-            description, mechanics, gmNotes = row
-            return {
-                'description': description,
-                'mechanics': mechanics,
-                'gmNotes': gmNotes
-            }
-        else:
-            return None
+        # TODO: Function needs rewriting due to the changes made in the database. Will do when it becomes necessary.
+        # # SELECT query and fetch to retrieve notes based on note_id
+        # self.cursor.execute('SELECT description, mechanics, gmNotes FROM notes WHERE id = ?', (self.note_id,))
+        # row = self.cursor.fetchone()
+        # # Assign notes to card
+        # if row:
+        #     description, mechanics, gmNotes = row
+        #     return {
+        #         'description': description,
+        #         'mechanics': mechanics,
+        #         'gmNotes': gmNotes
+        #     }
+        # else:
+        #     return None
+        pass
     def get_terrain_layout(self):
         if self.rarity == 'terrain' and 'no_terrain_layout' not in self.flags:
             return -70
