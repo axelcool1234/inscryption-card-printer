@@ -322,13 +322,13 @@ sigil_data = [
     ('Leader', 'buffneighbours', 3, None),
     ('Brittle', 'brittle', -2, None),
     ('Skeleton Crew', 'skeletonstrafe', 3, None),
-    ('Green Mox', 'gaingemgreen', 2, None),
-    ('Orange Mox', 'gaingemorange', 2, None),
-    ('Blue Mox', 'gaingemblue', 2, None),
+    ('Green Mox', 'green_mox', 2, None),
+    ('Orange Mox', 'orange_mox', 2, None),
+    ('Blue Mox', 'blue_mox', 2, None),
     ('Gem Animator', 'buffgems', 3, None),
     ('Ruby Heart', 'droprubyondeath', 3, None),
     ('Mental Gemnastics', 'gemsdraw', 3, None),
-    ('Gem Dependant', 'gemdependant', -3, None),
+    ('Gem Dependant', 'gem_dependant', -3, None),
     ('Great Mox', 'gaingemtriple', 4, None),
     ('Handy', 'drawnewhand', 4, None),
     ('Squirrel Shedder', 'squirrelstrafe', 3, None),
@@ -515,7 +515,31 @@ blood_card_data = [
     ('Reginald', 'Reginald', 1, 3, 'bone_3', 'common', 'nature', None),
     ('Kaminski', 'Kaminski', 0, 1, 'bone_1', 'common', 'nature', None),
     # Mox Cards (from Act 2) - Axel
-    ('Junior Sage', 'juniorsage_splatter', 1, 2, '[green]', 'common', 'wizard', None)
+    # ('Magnus Mox', ),
+    # ("Bleene's Mox", ),
+    # ("Goranj's Mox", ),
+    # ("Orlu's Mox", ),
+    # ('Master Bleene', ),
+    # ('Master Goranj', ),
+    # ('Master Orlu', ),
+    ('Emerald Mox', 'emeraldmox_splatter', 0, 1, None, 'common', 'wizard', None),
+    ('Ruby Mox', 'rubymox_splatter', 0, 1, None, 'common', 'wizard', None),
+    ('Sapphire Mox', 'sapphiremox_splatter', 0, 1, None, 'common', 'wizard', None),
+    ('Mage Pupil', 'magepupil', 1, 1, None, 'common', 'wizard', None),
+    # ('Gourmage', ),
+    # ('Green Mage', ),
+    ('Junior Sage', 'juniorsage_splatter', 1, 2, '[green]', 'common', 'wizard', None),
+    # ('Muscle Mage', ),
+    # ('Stim Mage', ),
+    # ('Mage Knight', ),
+    # ('Orange Mage', ),
+    # ('Practice Wizard', ),
+    # ('Ruby Golem', ),
+    # ('Blue Mage', ),
+    # ('Blue Sporemage', ),
+    # ('Force Mage', ),
+    # ('Gem Fiend', ),
+    # ('Hover Mage', ),
 ]
 for data in blood_card_data:
     cursor.execute('INSERT INTO cards (name, filename, power, health, cost, rarity, temple, note_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', data)
@@ -648,6 +672,10 @@ card_category_data = [
     ('Kaminski', 'base'),
 
     # Custom
+    ('emeraldmox_splatter', 'axel'),
+    ('rubymox_splatter', 'axel'),
+    ('sapphiremox_splatter', 'axel'),
+    ('magepupil', 'axel'),
     ('juniorsage_splatter', 'axel'),
 ]
 for data in card_category_data:
@@ -738,6 +766,7 @@ for data in card_tribe_data:
 
 # Card Sigils (Single)
 card_sigil_data = [
+    # Base Game
     ('Adder', 'deathtouch'),
     ('Alpha', 'buffneighbours'),
     ('Amoeba', 'randomability'),
@@ -806,6 +835,11 @@ card_sigil_data = [
     ('Kraken', 'submergesquid'),
     ('HydraEgg', 'hydraegg'),
     ('Reginald', 'deathtouch'),
+    # Custom Cards (From Act 2) - Axel
+    ('emeraldmox_splatter', 'greenmox'),
+    ('rubymox_splatter', 'orangemox'),
+    ('sapphiremox_splatter', 'bluemox'),
+    ('magepupil', 'gemdependant')
 ]
 for data in card_sigil_data:
     cursor.execute('INSERT INTO card_sigils (card_filename, sigil_filename) VALUES (?, ?)', data)
