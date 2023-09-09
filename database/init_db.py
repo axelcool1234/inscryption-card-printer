@@ -699,6 +699,26 @@ blood_card_data = [
     # ('Tombstone', ),
     # ('Librarian', ),
     # ('The Daus', ),
+
+    # Nevernameds Bestiary
+
+    # Eri Card Expansion
+
+    # Gareth Mod
+
+    # PksBoosterPack
+
+    # Custom Nature (Axel)
+
+    # Custom Undead (Axel)
+    # ('Lich', ),
+
+    # Custom Tech (Axel)
+    # ('Junk-O', ),
+
+
+    # Custom Wizard (Axel)
+
 ]
 for data in blood_card_data:
     cursor.execute('INSERT INTO cards (name, filename, power, health, cost, rarity, temple) VALUES (?, ?, ?, ?, ?, ?, ?)', data)
