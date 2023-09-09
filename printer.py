@@ -138,15 +138,15 @@ def generate_latex(entries, font):
             latex_content += "\\newpage\n"
 
             match current_type:
-                case "Boons":
+                case "boons":
                     latex_content += "\customHeaderFooter{0.5}{1.75}{0.5}{1.75}\n"
-                case "Items":
+                case "items":
                     latex_content += "\customHeaderFooter{0.5}{1.75}{0.5}{1.75}\n"
-                case "Sigils":
+                case "sigils":
                     latex_content += "\customHeaderFooter{0.5}{1.75}{0.5}{1.75}\n"
-                case "VariableStats":
+                case "staticons":
                     latex_content += "\customHeaderFooter{0.5}{1.75}{0.5}{1.75}\n"
-                case "Spells":
+                case "spells":
                     #I have no spells yet, don't need to worry about this case.
                     pass
         entry = templates[current_type].replace("NAME", name.strip('_'))
@@ -176,11 +176,10 @@ def generate_rulebook(cursor):
     font = "HEAVYWEIGHT"
     entries = []
     # TODO: Eventually include spells if those are ever implemented
-    # TODO: Add boons and items tables to database
     entry_types = ["boons", "items", "sigils", "staticons"]
 
     for entry_type in entry_types:
-        cursor.execute(f'SELECT * FROM {entry_type}')
+        cursor.execute(f'SELECT * FROM {entry_type} ORDER BY name')
         rows = cursor.fetchall()
         for row in rows:
             row = dict(row)
