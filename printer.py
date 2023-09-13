@@ -29,6 +29,8 @@ def call_database(dict_mode, query, data=None):
         conn.close()
 def get_data(table_name, filename):
     query = f'SELECT * FROM {table_name} WHERE card_filename = ?'
+    if table_name == 'sigils':
+        query += ' ORDER BY priority'
     rows = call_database(True, query, (filename,))
     data_as_dicts = [dict(row) for row in rows]
     return data_as_dicts
@@ -48,13 +50,12 @@ def generate_front_cards():
             deathcard_data = get_data('death_cards', filename)
             deathcard_data = deathcard_data[0] if len(deathcard_data) == 1 else None
             staticon_data = get_data('card_staticons', filename)
-            category_data = get_data('card_categories', filename)[0]['category']
 
             # Connect for card
             conn = sqlite3.connect('database/inscryption.db')
             cursor = conn.cursor()
             card = Card(cursor, './', card_data, tribe_data, sigil_data, flag_data,
-                        before_decal_data, decal_data, deathcard_data, staticon_data, category_data)
+                        before_decal_data, decal_data, deathcard_data, staticon_data)
             cursor.close()
             conn.close()
             if i == 1:

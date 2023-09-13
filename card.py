@@ -11,7 +11,7 @@ class Card:
     fullsize_card_height = 1050 # px
     scale = fullsize_card_height / original_card_height
     def __init__(self, cursor, base, card_data, tribe_data, sigil_data, flag_data,
-                 before_decal_data, decal_data, deathcard_data, staticon_data, category_data):
+                 before_decal_data, decal_data, deathcard_data, staticon_data):
         # Establish base directory
         self.base = base + 'resource'
         # Gain access to database
@@ -26,7 +26,8 @@ class Card:
         self.tribes = self.preserve_tribe_order()
         # Establish sigil data
         # TODO: Preserve sigil priority for card
-        self.sigils = self.establish_attribute_data(sigil_data, 'sigil')
+        sorted_sigil_data = sorted(sigil_data, key = lambda x: x['priority'])
+        self.sigils = [item['sigil_filename'] for item in sorted_sigil_data]
         # Establish flag data
         self.flags = self.establish_attribute_data(flag_data, 'flag')
         # Establish decal data
@@ -36,8 +37,6 @@ class Card:
         self.deathcard = deathcard_data
         # Establish staticon data
         self.staticon = self.establish_attribute_data(staticon_data, 'staticon')
-        # Establish category data
-        self.category = category_data
         # Get terrain layout offset
         self.terrain_layout_x_offset = self.get_terrain_layout()
 
