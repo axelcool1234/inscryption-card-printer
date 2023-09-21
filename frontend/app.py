@@ -178,10 +178,9 @@ def generate_card_view():
         staticon_data = [{'staticon_filename': icon} for icon in staticon]
     else:
         staticon_data = []
-    category_data = None
     # Generate the card based on user input
     image_base64 = Card(cursor, '../', card_data, tribe_data, sigil_data, flag_data,
-                 before_decal_data, decal_data, deathcard_data, staticon_data, category_data).generate_card_image()
+                 before_decal_data, decal_data, deathcard_data, staticon_data).generate_card_image()
     image_base64 = base64.b64encode(image_base64).decode('utf-8')
 
     db_data = get_database_data()
